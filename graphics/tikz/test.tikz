@@ -1,0 +1,39 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=spacednothing] (0) at (0, 0) {$\cdots$};
+		\node [style=new style 0] (1) at (-8, 0) {$U_1$};
+		\node [style=new style 0] (2) at (8, 0) {$U_{n-1}$};
+		\node [style=new style 0] (3) at (-16, 0) {$U_0$};
+		\node [style=new style 0] (4) at (16, 0) {$U_n$};
+		\node [style=new style 1] (5) at (-12, 5) {\textsf{\$}};
+		\node [style=new style 1] (6) at (12, 5) {\textsf{\$}};
+		\node [style=none] (7) at (-12, 6.5) {$\ell_1$};
+		\node [style=none] (8) at (12, 6.5) {};
+		\node [style=none] (9) at (-9, 2) {};
+		\node [style=new style 1] (10) at (-4, 5) {\textsf{\$}};
+		\node [style=none] (11) at (-4, 6.5) {$\ell_2$};
+		\node [style=new style 1] (12) at (4, 5) {\textsf{\$}};
+		\node [style=none] (13) at (4, 6.5) {$\ell_{n-1}$};
+		\node [style=none] (17) at (0, 5) {};
+		\node [style=none] (19) at (12, 6.5) {};
+		\node [style=none] (20) at (12, 6.5) {$\ell_n$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=conn] (3) to (1);
+		\draw [style=conn] (2) to (4);
+		\draw [style=spend] (3) to node [sloped, above, style=spend-text] {\small{\textsf{create}}} (5);
+		\draw [style=spend] (2) to node [sloped, above, style=spend-text] {\small{\textsf{create}}} (6);
+		\draw [style=conn] (1) to (0);
+		\draw [style=conn] (0) to (2);
+		\draw [style=unlock] (5) to node [sloped, above, style=unlock-text] {\small{\textsf{unlock}}} (1);
+		\draw [style=unlock] (6) to node [sloped, above, style=unlock-text] {\small{\textsf{unlock}}} (4);
+		\draw [style=spend] (1) to node [sloped, above, style=spend-text] {\small{\textsf{create}}} (10);
+		\draw [style=unlock] (10) to node [sloped, above, style=unlock-text] {\small{\textsf{unlock}}} (0);
+		\draw [style=spend] (0) to node [sloped, above, style=spend-text] {\small{\textsf{create}}} (12);
+		\draw [style=unlock] (12) to node [sloped, above, style=unlock-text] {\small{\textsf{unlock}}} (2);
+		\draw [style=new edge style 0, bend right=15] (3) to (1);
+		\draw [style=new edge style 0, bend right=15] (3) to (0);
+		\draw [style=new edge style 0, bend right=15] (3) to (2);
+		\draw [style=new edge style 0, bend right=15] (3) to node [below, style=init-text] {\small{\textsf{initialize}}} (4);
+	\end{pgfonlayer}
+\end{tikzpicture}
