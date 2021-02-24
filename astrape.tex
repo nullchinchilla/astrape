@@ -19,7 +19,8 @@
 % \settopmatter{printacmref=false, printccs=true, printfolios=true} % We want page numbers on submissions
  
 % \usepackage{cite}
-\usepackage{amsmath}
+% \bibliographystyle{apa}
+\usepackage{amsmath} 
 \usepackage{amsthm} 
 \usepackage{amsfonts}
 \usepackage{graphicx}
@@ -28,6 +29,7 @@
 \usepackage{subcaption}
 \usepackage{lmodern}
 \usepackage{framed}
+\usepackage{mathtools}
 \usepackage{float} 
 \usepackage{algorithmicx}   
 \newtheorem{theorem}{Theorem}[section] 
@@ -35,9 +37,9 @@
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 %\usepackage{cochineal}
-\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=0,shrink=10]{microtype}
+%\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,factor=1100,stretch=0,shrink=10]{microtype}
 \usepackage{algpseudocode}
-\linespread{0.98}
+\linespread{0.96}
 %\usepackage{xcolor} \pagecolor[rgb]{0.2,0.2,0.2} \color[rgb]{1,1,1}
 
 % \makeatletter
@@ -88,27 +90,27 @@ More importantly, payment channels can be organized into \emph{payment-channel n
 
 \subsection{Anonymity in PCNs}
 
-Unfortunately, ``first-generation'' PCNs based on the HTLC (hash time-locked contract), such as Lightning Network \cite{decker2015fast} and Raiden \cite{raiden}, have a significant problem --- poor anonymity \cite{malavolta2017concurrency}. The very contracts that ensure blockchain-tied security also makes payments in the worst case as transparently linkable as blockchain payments \cite{malavolta2017concurrency}, since HTLC uses a unique hash preimage to identify each overall transaction. Furthermore, naive implementations fall victim to subtle fee-stealing attacks, like the ``wormhole attack'' \cite{malavolta2019anonymous}, that threaten the viability of large, permissionless PCNs.
+Unfortunately, ``first-generation'' PCNs based on the HTLC (hash time-locked contract), such as Lightning Network \cite{decker2015fast} and Raiden \cite{raiden}, have a significant problem --- poor anonymity \cite{malavolta2017concurrency}. The very contracts that ensure blockchain-tied security also make payments in the worst case as transparently linkable as blockchain payments \cite{malavolta2017concurrency}, since HTLC uses a unique hash preimage to identify each overall transaction. This threatens the improved privacy compared to on-chain transactions that is often cited as a benefit of PCNs. Furthermore, naive implementations fall victim to subtle fee-stealing attacks, like the ``wormhole attack'' \cite{malavolta2019anonymous}, that threaten the viability of large PCNs.
 
-A sizable body of existing work on fixing PCN security and privacy exists, mostly divided into two groups. On one hand, specialized constructions can achieve total unlinkability in specific settings, such as Bolt \cite{green2017bolt} for hub-based PCNs on the ZCash blockchain. On the other hand, general solutions for all PCN topologies, like AMHL \cite{malavolta2019anonymous} and Fulgor \cite{malavolta2017concurrency}, achieve a somewhat weaker, topology-dependent notion anonymity: \emph{relationship anonymity} \cite{backes2013anoa}. This property, common to onion-routing and other anonymous communication protocols, rests anonymity on the existence of at least one honest intermediary.
+A sizable body of existing work on fixing PCN security and privacy exists, mostly divided into two groups. On one hand, specialized constructions can achieve strong anonymity in specific settings, such as Bolt \cite{green2017bolt} for hub-based PCNs on the ZCash blockchain. These specialized solutions typically provide for indistinguishability of two concurrent transactions even when all intermediaries are malicious. On the other hand, general solutions for all PCN topologies, like AMHL \cite{malavolta2019anonymous} and Fulgor \cite{malavolta2017concurrency}, achieve a somewhat weaker, topology-dependent notion of anonymity: \emph{relationship anonymity} \cite{backes2013anoa}. This property, common to onion-routing and other anonymous communication protocols, means that two concurrent transactions cannot be distnuished as long as they share at least one honest intermediary.
 
 Unfortunately, all existing systems share one weakness. No existing anonymous PCN construction limits itself to the bare-bones cryptographic primitives used in HTLC --- black-box access to a generic signature scheme and hash function. Instead, almost all existing anonymous payment channel networks are tightly coupled to the mathematics of specific cryptographic constructions. Tumblebit \cite{heilman2017tumblebit}, for instance, uses a custom cryptosystem based on the RSA assumption. Systems that do use black-box primitives nevertheless require fairly exotic and difficult-to-implement primitives, such as the non-interactive zero-knowledge proofs used in Fulgor \cite{malavolta2017concurrency}.
 
-In the case of the first group of anonymous PCNs, this is understandable, as total unlinkability is a difficult goal to achieve, and likely impossible without some sort of zero-knowledge proof in settings like a hub-based PCN with one, untrusted hub. PCN constructions based on relationship anonymity, however, have no such excuse. First of all, relationship anonymity appears to be a relatively weak property for a cryptosystem to achieve. Standard and well-understood relationship-anonymous constructs, like onion routing and mixnetworks, exist for communication with no more than standard black-box primitives used in secure communication (symmetric and asymmetric encryption). \emph{Prima facie}, use of exotic cryptographic constructs to merely achieve relationship anonymity seems to be overkill.
+In the case of the first group of anonymous PCNs, this is understandable, as total unlinkability is a difficult goal to achieve, and likely impossible without some sort of zero-knowledge proof in settings like a hub-based PCN with one, untrusted hub. PCN constructions based on relationship anonymity, however, have no such excuse. First of all, relationship anonymity appears to be a relatively weak property for a cryptosystem to achieve. Standard and well-understood relationship-anonymous constructs, like onion routing and mix networks, exist for communication with no more than standard black-box primitives used in secure communication (symmetric and asymmetric encryption). \emph{Prima facie}, use of exotic cryptographic constructs to merely achieve relationship anonymity seems to be overkill.
 
-Use of custom cryptography when not needed is not a merely academic problem. Black-box cryptography allows easy replacement of cryptographic primitives without wholesale protocol redesign, making it much easier to deal with possible cryptoanalytic breakthroughs.. For example, we can easily replace ECDSA in Bitcoin with any unforgeable signature scheme or AES in TLS with any secure block cipher, without compromising their security or requiring their wholesale redesign. This is simply not possible with existing anonymous PCNs. Tumblebit \cite{heilman2017tumblebit}, for instance, uses a custom cryptosystem based on the RSA assumption, and if RSA were to be broken, Tumblebit's entire design collapses.
+Use of custom cryptography when not needed is not a merely academic problem. Black-box cryptography allows easy replacement of cryptographic primitives without wholesale protocol redesign, making it much easier to deal with possible cryptanalytic breakthroughs. For example, we can easily replace ECDSA in Bitcoin with any unforgeable signature scheme or AES in TLS with any secure block cipher, without compromising their security or requiring their wholesale redesign. This is simply not possible with existing anonymous PCNs. Tumblebit \cite{heilman2017tumblebit}, for instance, uses a custom cryptosystem based on the RSA assumption, and if RSA were to be broken, Tumblebit's entire design collapses. Furthermore, a black-box design allows us to seamlessly replace cryptographic primitives (like RSA) with more efficient but mathematically different primitives  with the same properties (like elliptic curves). Finally, black-box cryptography makes provable security easier, as we can rely on high-level properties of the black-box primitives (such as unforgeability of a signature scheme) rather than only using low-level computational hardness assumptions.
 
 Thus, we believe that any relationship-anonymous PCN construction should strive towards using ``boring'' cryptography --- black-box, pervasively used cryptographic primitives.
 
 \subsection{Our contributions}
 
-In this paper, we present \Astrape, the first PCN protocol that uses entirely ``boring'' cryptography yet achieves strong relationship anonymity. Despite achieving comparable security, privacy, and performance to other anonymous PCN constructions, Astrape does not introduce any cryptographic constructs other than those used in HTLC.
+In this paper, we present Astrape, the first PCN protocol that uses entirely ``boring'' cryptography yet achieves strong relationship anonymity. Despite achieving comparable security, privacy, and performance to other anonymous PCN constructions, Astrape does not introduce any cryptographic constructs other than those used in HTLC.
 
 \begin{itemize}
     \item We discuss existing payment channel networks, focusing on their security and privacy properties. In particular, we show that PCNs based on the hash time-lock contract, such as Lightning Network, have significant privacy and security problems. We discuss existing work on improving PCNs and their extensive reliance on either specialized environments or novel cryptographic constructions.
-    \item We introduce a formal model of PCN constructions, ``generalized multi-hop locks'' (GMHL), based on existing work defining ``anonymous multi-hop locks'' \cite{malavolta2019anonymous}. that generalizes all sorts of PCN constructs. We model the security and privacy properties we desire from a PCN construction within this model.
+    \item We introduce a formal model of PCN constructions, ``generalized multi-hop locks'' (GMHL), based on existing work defining ``anonymous multi-hop locks''~\cite{malavolta2019anonymous}. that generalizes all sorts of PCN constructs. We model the security and privacy properties we desire from a PCN construction within this model.
     \item Within the GMHL framework, we introduce Astrape, a new PCN construction that solves the security and privacy issues of HTLC-based constructs with only black-box cryptographic primitives. Strong privacy without new cryptographic primitives solves an important open problem in the field. Astrape builds upon existing work \cite{malavolta2017concurrency} on private PCNs but uses a new technique that avoids the need for zero-knowledge proofs. We prove that Astrape fulfills all of our security and privacy goals, even with very powerful adversaries.
-    \item We implemented Astrape and show that on average, Astrape requires less computation or communication than state-of-the-art private PCN constructions. We show that Astrape can easily be ported to different blockchains, due to its use of standard cryptographic primitives and the generality of the GMHL model.
+    \item We implement Astrape and show that on average, Astrape requires less computation or communication than state-of-the-art private PCN constructions. We show that Astrape can easily be ported to different blockchains, due to its use of standard cryptographic primitives and the generality of the GMHL model.
 \end{itemize}
 
 
@@ -116,19 +118,19 @@ In this paper, we present \Astrape, the first PCN protocol that uses entirely ``
 
 \subsection{Payment channels}
 
-The fundamental building block of payment channel networks is the bilateral payment channel \cite{mccorry2016towards}. A payment channel is a construct where two parties Alice and Bob deposit money into a blockchain-enforced ``vault'' that can be only opened with signatures from both Alice and Bob. Alice and Bob can then send each other money by privately agreeing on the distribution of funds between them, without using the blockchain at all. When the funds locked in the vault are insufficient, or one of the parties need to access the funds, they simply open the vault together and split the money according to the proportion they agreed to.
+The fundamental building block of payment channel networks is the bilateral payment channel \cite{mccorry2016towards}. A payment channel is a construct where two parties Alice and Bob deposit money into a blockchain-enforced ``vault'' that can be only opened with signatures from both Alice and Bob. Alice and Bob can then send each other money by privately agreeing on the distribution of funds between them by signing dated statements that split the money between them, without using the blockchain at all. When the funds locked in the vault are insufficient, or one of the parties need to access the funds, one of the parties can simply open the vault using any statement signed by both parties that was produced in the course of using the payment channel, subject to a short period of time where the other party may override the statement with a later-dated statement. This mechanism ensures security of funds even if one of the parties is malicious.
 
 \subsection{Multi-hop networks with HTLC}
 
 An extremely useful property of payment channels is that they can be used to construct \emph{payment channel networks} (PCNs) \cite{mccorry2016towards,decker2018eltoo,croman2016scaling}. A PCN is simply a directed graph of payment channels between users, allowing users without payment channels directly between each other to pay each other by routing the money over intermediaries. For example, the Lightning Network, one of the most prominent PCNs, has over 30,000 channels connecting more than 4,000 nodes \cite{github2019lnd}. Any of these 4,000 nodes can pay any other.
 
-A crucial building block of secure PCNs is the \emph{secure multi-hop transaction} (SMHT) --- some way of Alice paying Bob to pay Carol without any trust in Bob. Most PCNs implement an SMHT using a smart contract known as the \emph{Hash Time-Lock Contract} (HTLC). An HTLC between parameterized over a \emph{sender} Alice, the \emph{recipient} Bob, a timeout $t$, and a \emph{puzzle} $s$. It locks up a certain amount of money, unlocking it according to the following rules:
+A crucial building block of secure PCNs is the \emph{secure multi-hop transaction} (SMHT) --- some way of Alice paying Bob to pay Carol without any trust in Bob. Most PCNs implement an SMHT using a smart contract known as the \emph{Hash Time-Lock Contract} (HTLC). An HTLC is parameterized over a \emph{sender} Alice, the \emph{recipient} Bob, a deadline $t$, and a \emph{puzzle} $s$. It locks up a certain amount of money, unlocking it according to the following rules:
 \begin{itemize}
     \item The money goes to Bob if he produces $\pi$ where $H(\pi) = s$ before time $t$, where $H$ is a secure hash function.
     \item Otherwise, the money goes to Alice.
 \end{itemize}
 
-HTLCs are used to implement an SMHT in the following way. Consider a sender $U_0$ wishing to send money to a recipient $U_n$ through untrusted intermediaries $U_0,\dots,U_n$. At first, $U_0$ will generate a random $\pi$ and $s=H(\pi)$, while sending the pair $(\pi,s)$ to $U_n$ over a secure channel (for instance, encrypted under $U_n$'s public key and transmitted over the Tor \cite{dingledine2004tor} network). $U_0$ can then lock money in a HTLC parameterized over $U_0,U_1,s$, notifying $U_1$. $U_1$ would send an HTLC over $U_1,U_2,s$, notifying $U_2$, and so on.
+HTLCs are used to implement an SMHT in the following way. Consider a sender $U_0$ wishing to send money to a recipient $U_n$ through untrusted intermediaries $U_0,\dots,U_n$. At first, $U_0$ will generate a random $\pi$ and $s=H(\pi)$, while sending the pair $(\pi,s)$ to $U_n$ over a secure channel (for instance, encrypted under $U_n$'s public key and transmitted over the Tor \cite{dingledine2004tor} network). $U_0$ can then lock money in a HTLC parameterized over $U_0,U_1,s,t_1$, notifying $U_1$. $U_1$ would send an HTLC over $U_1,U_2,s,t_2$, notifying $U_2$, and so on. The deadline must become earlier at each step --- $t_1>t_2>\dots>t_n$ --- this ensures that in case of an uncooperative or malicious intermediary, funds always revert to the sender.
 
 The payment eventually will be routed to $U_n$, who will receive an HTLC over $U_{n-1},U_n,s$. He will claim the money by providing $\pi$; this allows $U_{n-1}$ to claim money from $U_{n-2}$ using the same $\pi$, and so on, until all outstanding HTLC contracts are fulfilled. $U_0$ has successfully sent money to $U_n$, while the preimage resistance of $H$ prevents any intermediary from stealing the funds.
 
@@ -136,13 +138,13 @@ The payment eventually will be routed to $U_n$, who will receive an HTLC over $U
 
 An important property we may want from PCNs is strong anonymity. Intuitively, taking transactions away from the prying eyes of the public blockchain should enable two parties to transact without risking third-party surveillance. Unfortunately, HTLC has an inherent privacy problem --- a common identifier $s=H(\pi)$ visible to all nodes in the payment path. Even when the communications between all PCN nodes are done over a robust anonymizing protocol, this property still severely hampers privacy \cite{green2017bolt,malavolta2017concurrency,malavolta2019anonymous}. Furthermore, when payment channels are closed and transactions end up settling on the blockchain, privacy degenerates to be similar to that of on-chain transactions.
 
-\emph{Hub-based} approaches form the earliest and most common kind of anonymous PCN design. In a hub-based anonymous PCN, the shape of the network is limited to a star topology with users communicating with a centralized (though typically untrusted) hub. Many of these networks are highly specialized, such as Green and Miers' BOLT \cite{green2017bolt}, which relies on the Zcash blockchain's zero-knowledge cryptography, and Lind and Eyal's Teechain design \cite{lind2016teechan}, which uses trusted execution environments. Other hub-based approaches, such as Tumblebit \cite{heilman2017tumblebit} and the more recent \cite{tairi2019a2l}, provide more general solutions that work on a wide variety of blockchains.
+\emph{Hub-based} approaches form the earliest and most common kind of anonymous PCN design. In a hub-based anonymous PCN, the shape of the network is limited to a star topology with users communicating with a centralized (though typically untrusted) hub. Many of these networks are highly specialized, such as Green and Miers' BOLT \cite{green2017bolt}, which relies on the Zcash blockchain's zero-knowledge cryptography, and Lind and Eyal's Teechain design \cite{lind2016teechan}, which uses trusted execution environments. Other hub-based approaches, such as Tumblebit \cite{heilman2017tumblebit} and the more recent A2L \cite{tairi2019a2l}, provide more general solutions that work on a wide variety of blockchains.
 
-Hub-based PCN constructions tackle the inherently difficult problem of providing unlinkability between transactions despite the existence of only one, global, untrusted intermediary. Thus, it's no surprise that highly specialized cryptography is needed to protect anonymity. Fortunately, actual payment channel networks often have intricate topologies with many participants and no huge hubs. General, topology-agnostic solutions, which may not need the kind of cryptography common in hub-based approaches, are thus more important to deploying private PCNs in practice.
+Hub-based PCN constructions tackle the inherently difficult problem of providing unlinkability between transactions despite the existence of only one, global, untrusted intermediary. It is therefore no surprise that highly specialized cryptography is needed to protect anonymity. Fortunately, actual payment channel networks often have intricate topologies with many participants and no huge hubs. General, topology-agnostic solutions, which may not need the kind of cryptography common in hub-based approaches, are thus more important to deploying private PCNs in practice.
 
 \subsection{Relationship-anonymous payment channels}
 
-Unlike hub-based approaches, where no intermediaries are trusted (since there's only one!), general private PCN constructions target \emph{relationship anonymity}. This concept, which these constructions share with onion routers and other anonymous communication protocols, assumes the existence of at least one honest intermediary between the counterparties. Thus intermediaries are in fact crucial to relationship-anonymous PCNs' privacy properties, since they achieve privacy by bouncing the payment between multiple non-colluding parties.
+Unlike hub-based approaches, where no intermediaries are trusted (since there is only one), general private PCN constructions target \emph{relationship anonymity}. This concept, which these constructions share with onion routers and other anonymous communication protocols, assumes the existence of at least one honest intermediary between the counterparties. Thus intermediaries are in fact crucial to relationship-anonymous PCNs' privacy properties, since they achieve privacy by bouncing the payment between multiple non-colluding parties.
 
 The earliest solution to PCN privacy in this family was probably Fulgor and Rayo \cite{malavolta2017concurrency}, a closely related pair of constructions that can be ported to almost all HTLC-based PCNs. Fulgor/Rayo combines a ``multi-hop HTLC'' contract with out-of-band zero-knowledge proofs to remove the common identifier between different hops of the payment.
 
@@ -159,17 +161,17 @@ Another important contribution by the authors of AMHL was the discovery of ``wor
 
 \subsection{Why a new solution?}
 
-Ever since HTLCs were first proposed, anonymous PCNs solutions have progressed greatly. Systems like AMHL and A2L achieve rigorous anonymity guarantees without significantly sacrificing performance, while keeping compatibility with many existing blockchains. It's easy to conclude that anonymous payment channels are a mostly ``solved problem''.
+Ever since HTLCs were first proposed, anonymous PCNs solutions have progressed greatly. Systems like AMHL and A2L achieve rigorous anonymity guarantees without significantly sacrificing performance, while keeping compatibility with many existing blockchains. It is easy to conclude that anonymous payment channels are a mostly ``solved problem''.
 
 Yet there remains a weakness common to all existing anonymous PCN constructions --- reliance on custom cryptographic primitives. For example, AMHL uses linear homomorphic encryption, Fulgor uses non-interactive zero-knowledge proofs, and Tumblebit uses a custom cryptosystem based on the RSA assumption. Although these constructs are typically based on commonly accepted cryptographic assumptions, this situation is still not ideal.
 
-First, non-standard cryptography poses barriers to adoption. Portability is reduced --- AMHL's clever embedding of homomorphic encryption within ECDSA does not extend to other signature schemes, for example. More importantly, reliable and performant implementations of novel cryptographic functions are also difficult to obtain. Widely-used, well-audited cryptographic libraries like libsodium \cite{libsodium} or OpenSSL \cite{openssl} generally neither implement functions such as RSA-based homomorphic encryption nor provide tools to securely implement them.
+First, non-standard cryptography poses barriers to adoption. Portability is reduced --- AMHL's clever embedding of homomorphic encryption within ECDSA does not extend to other signature schemes, for example. More importantly, reliable and performant implementations of novel cryptographic functions are also difficult to obtain. Widely used, well-audited cryptographic libraries like libsodium \cite{libsodium} or OpenSSL \cite{openssl} generally neither implement functions such as RSA-based homomorphic encryption nor provide tools to securely implement them.
 
 Furthermore, tight coupling between a PCN protocol and the mathematics of a particular cryptographic construction makes swapping out cryptographic primitives impossible. For example, Tumblebit's cryptography crucially depends on RSA's algebraic structure \cite{heilman2017tumblebit}. In case RSA is broken through practical quantum computers or advances in factorization, Tumblebit must be completely redesigned.
 
 Thus, we believe that finding a way of constructing efficient yet privacy-preserving PCNs by composing well-understood and easily replaced black-box cryptographic primitives is crucial to usable anonymous payment channels. In fact, AMHL's authors already posed finding the minimal set of cryptographic primitives as an ``interesting problem'' \cite{malavolta2019anonymous} that they conjecturally answered with linear homomorphic encryption.
 
-Astrape is our solution to the problem of cryptographically simple anonymous PCNs. We show that anonymous and atomic multi-hop transactions can be constructed with nothing but the two building blocks of HTLCs --- hashing and signatures. Unprecedentedly, no mathematical assumptions about the structure of the hash function or signature scheme are made, allowing Astrape to be easily ported to different concrete cryptographic primitives and its security properties to ``fall out'' from those of the primitives. This also allows Astrape to achieve high performance on commodity hardware using standard cryptographic libraries.
+Astrape is our solution to the problem of cryptographically simple anonymous PCNs that refutes this conjecture. We show that anonymous and atomic multi-hop transactions can be constructed with nothing but the two building blocks of HTLCs --- hashing and signatures. Unlike existing a work, no mathematical assumptions about the structure of the hash function or signature scheme are made, allowing Astrape to be easily ported to different concrete cryptographic primitives and its security properties to ``fall out'' from those of the primitives. This also allows Astrape to achieve high performance on commodity hardware using standard cryptographic libraries.
 
 \section{Problem statement} \label{sec:probstat}
 
@@ -177,7 +179,7 @@ Astrape is our solution to the problem of cryptographically simple anonymous PCN
 
 In our discussion of Astrape, we avoid describing the concrete details of a specific payment channel network and cryptocurrency. Instead, we introduce an abstract model --- generalized multi-hop locks.  This model readily generalizes to different families of payment channel networks and even other intermediarized payment technologies, such as on-chain ``coin tumbling'' services.
 
-We model a \emph{sender}, $U_0$, sending money to a \emph{receiver}, $U_n$, through intermediaries $U_0,\dots,U_n$. After an \emph{initialization} phase where the sender may securely communicate parameters to each hop, each user $U_i$ where $i<n$ \emph{creates} a \emph{coin} and notifies $U_{i+1}$. This coin is simply a contract $\ell_{i+1}$ known as a \emph{lock}, that essentially releases money to $U_{i+1}$ given a certain key $k_{i+1}$. We call this lock the \emph{right lock} of $U_{i}$ and the \emph{left lock} of $U_{i+1}$.
+We model a \emph{sender}, $U_0$, sending money to a \emph{receiver}, $U_n$, through intermediaries $U_1,\dots,U_{n-1}$. We assume a ``source routing'' model, where the graph of all open payment channels in the network is publicly known and the sender can choose any valid path to the recipient. After an \emph{initialization} phase where the sender may securely communicate parameters to each hop, each user $U_i$ where $i<n$ \emph{creates} a \emph{coin} and notifies $U_{i+1}$. This coin is simply a contract $\ell_{i+1}$ known as a \emph{lock}, that essentially releases money to $U_{i+1}$ given a certain key $k_{i+1}$. We call this lock the \emph{right lock} of $U_{i}$ and the \emph{left lock} of $U_{i+1}$.
 
 Finally, the payment completes once all coins created in the protocol have been unlocked and spent by fulfilling their lock scripts. Typically, this happens through a chain reaction where the recipient's left lock $\ell_n$ is spent, allowing $U_{n-1}$ to unlock its left lock, etc.
 
@@ -187,24 +189,24 @@ Figure \ref{fig:coinpassing} illustrates the three GMHL components.  Formally, w
 \begin{definition}
     A GMHL $\mathbb{L}=(\mathsf{Init}, \mathsf{Create}, \mathsf{Spend})$ consists of the following efficient protocols:
     \begin{enumerate}
-        \item $\{s_0^I,\dots,(s_n^I, k_n))\} \Leftarrow\\ \langle \mathsf{Init}_{U_0}(1^\lambda, U_1,\dots,U_n), \mathsf{Init}_{U_1}, \dots, \mathsf{Init}_{U_n} \rangle$: the initialization protocol, started by the sender $U_0$, that takes in a security parameter $1^\lambda$ and the identities of all hops $U_i$ and returns an initial state $s_i^I$ to all users $U_i$. Additionally, the recipient receives a key $k_n$.
-        \item $\{(\ell_i, s_{i-1}^R), (\ell_i, s^L_{i}) \} \Leftarrow \\
+        \item $\langle s_0^I,\dots,(s_n^I, k_n)) \rangle \Leftarrow\\ \langle \mathsf{Init}_{U_0}(1^\lambda, U_1,\dots,U_n), \mathsf{Init}_{U_1}, \dots, \mathsf{Init}_{U_n} \rangle$: the initialization protocol, started by the sender $U_0$, that takes in a security parameter $1^\lambda$ and the identities of all hops $U_i$ and returns an initial state $s_i^I$ to all users $U_i$. Additionally, the recipient receives a key $k_n$.
+        \item $\langle (\ell_i, s_{i-1}^R), (\ell_i, s^L_{i}) \rangle \Leftarrow \\
                   \langle \mathsf{Create}_{U_{i-1}}(s_{i-1}^I), \mathsf{Create}_{U_{i}}(s_{i}^I) \rangle$: the coin-creating protocol run between two adjacent hops $U_{i-1}$ and $U_{i}$, creating the ``coin sent from $U_{i-1}$ to $U_{i}$''. This includes a lock representation $\ell_i$ as well as additional state on both ends --- unlocking the lock represented by $\ell_i$ releases the money.
         \item $k_i \Leftarrow \mathsf{Unlock}_{U_i}(\ell_{i+1}, (s^I_i, s^L_i, s^R_i), k_{i+1})$: the coin-spending protocol, run by each intermediary $U_i$ where $i<n$, obtains a valid unlocking key $k_i$ for the ``left lock'' $\ell_i$ given its ``right lock'' $\ell_{i+1}$, its unlocking key $k_{i+1}$, and $U_i$'s internal state.
         \item $\{ 0,1 \} \Leftarrow \mathsf{Vf}(\ell, k)$: given a lock representation $\ell$ and an unlocking key $k$, return $1$ iff the $k$ is a valid solution to the lock $\ell$
     \end{enumerate}
 \end{definition}
 
-As an example, in the classic HTLC protocol, $\mathsf{Init}$ consists of $U_0$ sending $U_n$ the pair $k,s^I=U(k)$ and all other $U_i$ simply $s^I$ in the initialization phase. Then, in $\mathsf{Create}$ each pair of hops $U_i,U_{i+1}$ creates the lock $\ell_{i+1}$ which can be unlocked by the preimage of $s$, saving no additional state ($s^L_i = s^R_i = 0$ for all $i$). At the end, all the coins are unlocked in $\mathsf{Unlock}$ through the propagation of the same preimage $k$ ``leftwards'' --- $\mathsf{Unlock}$ simply returns $k_i = k_{i+1}$. Finally, $\mathsf{Vf}(\ell,k)$ returns $1$ iff $H(k) = \ell$.
+As an example, in the classic HTLC protocol, $\mathsf{Init}$ consists of $U_0$ sending $U_n$ the pair $k,s^I=U(k)$ and all other $U_i$ simply $s^I$ in the initialization phase. Then, in $\mathsf{Create}$ each pair of hops $U_i,U_{i+1}$ creates the lock $\ell_{i+1}$ which can be unlocked by the preimage of $s$, saving no additional state ($s^L_i = s^R_i = \emptyset$ for all $i$). At the end, all the coins are unlocked in $\mathsf{Unlock}$ through the propagation of the same preimage $k$ ``leftwards'' --- $\mathsf{Unlock}$ simply returns $k_i = k_{i+1}$. Finally, $\mathsf{Vf}(\ell,k)$ returns $1$ iff $H(k) = \ell$.
 
 \paragraph*{Comparison to existing work}
 
-GMHL is an extension of \emph{anonymous multi-hop locks}, the model used in the eponymous paper by Malavolta et al. \cite{malavolta2019anonymous}. In particular, AMHL defines an anonymous PCN construction in terms of the operations $\mathsf{KGen}$,$\mathsf{Setup}$, $\mathsf{Lock}$, $\mathsf{Rel}$, four of which correspond to GMHL functions. Table \ref{tab:gmhlamhl} compares the two models.
+GMHL is an extension of \emph{anonymous multi-hop locks}, the model used in the eponymous paper by Malavolta et al. \cite{malavolta2019anonymous}. In particular, AMHL defines an anonymous PCN construction in terms of the operations $\mathsf{KGen}$,$\mathsf{Setup}$, $\mathsf{Lock}$, $\mathsf{Rel}$, $\mathsf{Vf}$, four of which correspond to GMHL functions. Table \ref{tab:gmhlamhl} compares the two models.
 
 \begin{table}[h]
     \centering
+    \caption{A comparison of GMHL and AMHL}
     \begin{tabular}{c c p{5cm}}
-        \toprule
         GMHL              & AMHL             & Notes                                                                                                                        \\
         \midrule
         ---               & $\mathsf{KGen}$  & \emph{A pre-setup key generation protocol between each adjacent pair of nodes in AMHL. GMHL includes it in $\mathsf{Init}$.} \\
@@ -212,26 +214,34 @@ GMHL is an extension of \emph{anonymous multi-hop locks}, the model used in the 
         $\mathsf{Create}$ & $\mathsf{Lock}$  & \emph{Coins are created between each pair of users $U_{i}$ and $U_{i+1}$.}                                                   \\
         $\mathsf{Spend}$  & $\mathsf{Rel}$   & \emph{Coins are spent by satisfying their locks, releasing the money.}                                                       \\
         $\mathsf{Vf}$     & $\mathsf{Vf}$    & \emph{A verification algorithm checking whether a key can unlock a representation of a lock.}                                \\
-        \bottomrule
     \end{tabular}
-    \caption{A comparison of GMHL and AMHL}
     \label{tab:gmhlamhl}
 \end{table}
 
 Although AMHL's model is very useful, we could not use it unmodified when presenting Astrape. This is because AMHL's PCN model is coupled with the homomorphic-encryption based system introduced by its authors --- for example, the multi-party key setup indicated by $\mathsf{KGen}$ is absent from most PCN constructions. Furthermore, AMHL's definition includes its security properties, while we wish to be able to use the same framework to discuss PCNs with varying security and anonymity goals.
 
-Nevertheless, GMHL can be considered as a minimally-modified version of AMHL, generalized to encompass almost all existing PCN constructions. Thus, Astrape can be considered a solution to the problem posed by AMHL's authors --- what are the cryptographic primitives needed to implement ``anonymous multi-hop locks'' \cite{malavolta2019anonymous}.
+Nevertheless, GMHL can be considered as a minimally modified version of AMHL, generalized to encompass almost all existing PCN constructions. Thus, Astrape can be considered a solution to the problem posed by AMHL's authors --- what are the cryptographic primitives needed to implement ``anonymous multi-hop locks'' \cite{malavolta2019anonymous}.
 
 \subsection{Security model}
 
 Now that we have a model to discuss PCN constructions, we can discuss our threat model as well as our security and privacy objectives.
-% We use the universal composability (UC) framework introduced by Canetti \cite{canetti2002universally} and widely used in existing work \cite{malavolta2017concurrency,malavolta2019anonymous}. 
 
-\paragraph*{Global active adversary} We use a similar adversary model to that of AMHL \cite{malavolta2019anonymous}. That is, we model an adversary $\mathcal{A}$ with access to a functionality $\mathsf{corrupt}(U_i)$ that takes in the identifier of any user $U_i$ and provides the attacker with the complete internal state of $U_i$. The adversary will also see all incoming and outgoing communication of $U_i$. It also sees all information that is posted onto any underlying blockchain. $\mathsf{corrupt}(U_i)$ will also give the adversary active control of $U_i$, allowing it to impersonate $U_i$ when communicating with other participants.
 
-\paragraph*{Anonymous out-of-band communication} We assume there is a secure and anonymous message transmission functionality $\mathcal{F}_\mathrm{anon}$ that allows any participant to send messages to any other participant. Messages sent by an honest (non-corrupted) user with $\mathcal{F}_\mathrm{anon}$ hide the identity of the sender and cannot be read or forged by the adversary, although the adversary may arbitrarily delay messages.
+\paragraph*{Active adversary} We use a similar adversary model to that of AMHL \cite{malavolta2019anonymous}. That is, we model an adversary $\mathcal{A}$ with access to a functionality $\mathsf{corrupt}(U_i)$ that takes in the identifier of any user $U_i$ and provides the attacker with the complete internal state of $U_i$. The adversary will also see all incoming and outgoing communication of $U_i$. It also sees all information that is posted onto any underlying blockchain. $\mathsf{corrupt}(U_i)$ will also give the adversary active control of $U_i$, allowing it to impersonate $U_i$ when communicating with other participants.
 
-A good practical approximation recommended by existing work \cite{malavolta2017concurrency,malavolta2019anonymous} is an onion-routing circuit constructed over the same set of users $U_i$, constructed with a provably private protocol like SPHINX \cite{danezis2009sphinx}. Public networks such as Tor may also be used to implement $\mathcal{F}_\mathrm{anon}$.
+\newcommand{\Fanon}{\mathcal{F}_\mathrm{anon}}
+
+\paragraph*{Anonymous and authenticated communication} We assume there is a secure and anonymous message transmission functionality $\Fanon$ that allows any participant to send messages to any other participant. Messages sent by an honest (non-corrupted) user with $\Fanon$ hide the identity of the sender and cannot be read by the adversary, although the adversary may arbitrarily delay messages.
+
+\newcommand{\Fauth}{\mathcal{F}_\mathrm{auth}}
+
+
+We also assume there is a secure and mutually authenticated message transmission functionality $\Fauth$. Like $\Fanon$, $\Fauth$ lets any honest participant send a message to another honest participant without the adversary knowing. Unlike $\Fanon$, $\Fauth$ does not hide the identity of the sender from the recipient, instead unforgeably indicating the sender. However, the adversary cannot know the sender or recipient of $\Fauth$ messages between honest participants.
+
+A good practical approximation of $\Fanon$ and $\Fauth$ recommended by existing work \cite{malavolta2017concurrency,malavolta2019anonymous} is an onion-routing circuit constructed over the same set of users $U_i$, constructed with a provably private protocol like SPHINX \cite{danezis2009sphinx}. Public networks such as Tor may also be used to implement $\Fanon$ and $\Fauth$.
+
+\paragraph*{Liveness and timeouts} We assume that every coin locks $\ell_i$ comes with an appropriate timeout that will return money to $U_{i-1}$ if $U_i$ does not take action. We also assume that each left lock $\ell_i$'s deadline is at least $\delta$ later than that of the right lock $\ell_{i+1}$, where $\delta$ is an upper bound on network latency between honest parties, even under disruption by the adversary. These assumptions allow us to omit timeout handling from the description of the protocol, in line with related work (such as AMHL~\cite{malavolta2019anonymous}).
+
 
 \paragraph*{Cryptographic assumptions} One of Astrape's main goals is to make minimal cryptographic assumptions. We assume only:
 
@@ -240,17 +250,17 @@ A good practical approximation recommended by existing work \cite{malavolta2017c
     \item \emph{Generic signature scheme}. We assume a secure signature scheme that allows for authenticated communication between any two users $U_i$ and $U_j$.
 \end{itemize}
 
-\subsection{Security and privacy goals}
+\subsection{Security and privacy goals} \label{secprivgoals}
 
 Against the adversary we described above, we want to achieve the following security and privacy objectives:
 
 \paragraph*{Relationship anonymity}
 
-Given two simultaneous payments between different senders $S_{\{ 0,1 \}}$ and receivers $R_{\{ 0,1\} }$ with payment paths of the same length intersecting at the same position at one honest intermediate user, an adversary corrupting all of the other intermediate users cannot determine the correct pair $(S_{b},R_b)$ for a given payment with probability better than $1/2$ (guessing). This is an established standard for anonymity in payment channels \cite{malavolta2017concurrency,malavolta2019anonymous} and is analogous to similar anonymity definitions for anonymous communication \cite{pfitzmann2010terminology, backes2013anoa}. It's important to note that the adversary is not allowed to corrupt the sender $U_0$ --- senders always know who they're sending money to!
+Given two simultaneous payments between different senders $S_{\{ 0,1 \}}$ and receivers $R_{\{ 0,1\} }$ with payment paths of the same length intersecting at the same position at one honest intermediate user, an adversary corrupting all of the other intermediate users cannot determine, with probability better than $1/2$ (guessing), whether $S_0$ paid $R_0$ and $S_1$ paid $R_1$, or $S_0$ paid $R_1$ and $S_1$ paid $R_0$. This is an established standard for anonymity in payment channels \cite{malavolta2017concurrency,malavolta2019anonymous} and is analogous to similar anonymity definitions for anonymous communication \cite{pfitzmann2010terminology, backes2013anoa}. It is important to note that the adversary is not allowed to corrupt the sender $U_0$ --- senders always know who they are sending money to --- and that anonymity of the sender against the recipient is not considered.
 
 \paragraph*{Balance security}
 
-For an honest user $U_i$, if its right coin $\ell_i$ is spent, $U_i$ must always be able to spend its left coin $\ell_{i+1}$ even if all other users are corrupt. Intuitively, this guarantees that no intermediary node can lose money even if everybody else conspires against it.
+For an honest user $U_i$, if its right coin $\ell_i$ is spent, $U_i$ must always be able to spend its left coin $\ell_{i+1}$ even if all other users are corrupt. Combined with the timeouts mentioned in our security model, this guarantees that no intermediary node can lose money even if everybody else conspires against it.
 
 \paragraph*{Wormhole resistance}
 
@@ -269,73 +279,129 @@ Unlike existing systems that utilize the mathematical properties of some cryptog
 
 The key insight here is that if we can ensure that HashOnion's $\mathsf{Unlock}$ phase \emph{can only start when there is proof that the sender is malicious}, we obtain a system that has both relationship anonymity and balance security. This is because the definition of relationship anonymity assumes an honest sender: if the sender is compromised, it can always simply tell the adversary the identity of its counterparty, breaking anonymity trivially.
 
-Now, let's describe XorCake and HashOnion, and their composition into Astrape.
+We next describe XorCake and HashOnion, and their composition into Astrape.
 
-\subsection{XorCake: anonymous but insecure}
+\subsection{XorCake: anonymous but insecure against bad senders}
 
-Let's first describe XorCake's construction. XorCake is an extremely simple construction based upon ``multi-hop HTLC'', a building block of Fulgor \cite{malavolta2017concurrency}. It has relationship anonymity, but not balance security against malicious senders.
+Let us first describe XorCake's construction. XorCake is an extremely simple construction borrowed from ``multi-hop HTLC'', a building block of Fulgor \cite{malavolta2017concurrency}. It has relationship anonymity, but not balance security against malicious senders.
 
 Recall that in GMHL, the sender ($U_0$) wishes to send a sum of money to the recipient ($U_n$) through $U_1,\dots,U_{n-1}$. At the beginning of the transaction, the sender samples $n$ independent $\lambda$-bit random strings $(r_1,\dots,r_n)$. Then, for all $i\in1,\dots,n$, she sets $n$ values $s_i=H(r_i\oplus r_{i+1}\oplus\dots\oplus r_n)$, where $H$ is a secure hash function. That is, $s_i$ is simply the hash of the XOR of all the values $r_j$ for $j\geq i$.
 
 $U_0$ then uses the anonymous channel $\mathcal{F}_\mathrm{anon}$ to provide $U_n$ the values $(r_n,s_n)$ and the all other $U_i$ with $(r_i,s_i,s_{i+1})$.
 
-Then, for each pair of neighboring nodes $(U_i,U_{i+1})$, $U_i$ sends $U_{i+1}$ a coin encumbered by a regular HTLC $\ell_{i+1}$ asking for the preimage of $s_{i+1}$. $U_n$ knows how to unlock $\ell_n$, and the solution would let $U_{n-1}$ unlock $\ell_{n-1}$, and so on and so forth.
+Then, for each pair of neighboring nodes $(U_i,U_{i+1})$, $U_i$ sends $U_{i+1}$ a coin encumbered by a regular HTLC $\ell_{i+1}$ asking for the preimage of $s_{i+1}$. $U_n$ knows how to unlock $\ell_n$, and the solution would let $U_{n-1}$ unlock $\ell_{n-1}$, and so on.
 
-% Figure \ref{fig:mh} formalizes XorCake in the GMHL framework.
+Figure \ref{fig:mh} formalizes XorCake in the GMHL framework.
 
-% \begin{figure}[t]
-%     \begin{framed}
-%         \begin{algorithmic}
-%             \Function{$\mathsf{Init}^\mathrm{XC}_{U_0}$}{$1^\lambda, U_1, \dots, U_n$}\\
-%             \emph{Upon invocation by $U_0$:}
+\begin{figure}[t]
+    \begin{framed}
+        \begin{algorithmic}
+            \Function{$\mathsf{Init}^\mathrm{XC}_{U_0}$}{$1^\lambda, U_1, \dots, U_n$}\\
+            \emph{Upon invocation by $U_0$:}
 
-%             \State generate $\lambda$-bit random numbers $\{ r_1,\dots,r_n \}$
-%             \For{$i$ in $1,\dots,n$}
-%             \State $s_i \gets H(r_i\oplus r_{i+1}\oplus\dots\oplus r_n)$
-%             \If {$i=n$}
-%             \State send $(k_n=r_n, s_n)$ to $U_n$
-%             \Else
-%             \State send $(r_i, s_i, s_{i+1})$ to $U_i$
-%             \EndIf
-%             \EndFor
-%             \EndFunction
-%         \end{algorithmic}
-%         \medskip
-%         \begin{algorithmic}
-%             \Function{$\mathsf{Create}^\mathrm{XC}_{U_i}$}{$s_i^I = (r_i,s_i,s_{i+1})$}\\
-%             \emph{Upon invocation by $U_i$, where $i<n$:}
-%             \State \Return $\ell_{i+1} = \mathsf{HTLC}[s_{i+1}]$
-%             \EndFunction
-%         \end{algorithmic}
-%         \medskip
-%         \begin{algorithmic}
-%             \Function{$\mathsf{Unlock}^\mathrm{XC}_{U_i}$}{$\ell_{i+1}, s_i^I=(r_i,s_i,s_{i+1}),k_{i+1}$}\\
-%             \emph{Upon invocation by $U_i$, where $i<n$:}
-%             %\State parse $\ell_{i+1}$ as $\mathsf{HTLC}[s_{i+1}]$
-%             \If {$\mathsf{Vf}^\mathrm{XC}(\ell_{i+1},k_{i+1}) = 0$}
-%             \State \textbf{abort}
-%             \EndIf
-%             \State $k_i \gets r_i \oplus k_{i+1}$
-%             \State \Return $k_i$
-%             \EndFunction
-%         \end{algorithmic}
-%         \medskip
-%         \begin{algorithmic}
-%             \Function{$\mathsf{Vf}^\mathrm{XC}$}{$\ell,k$}
-%             \State parse $\ell$ as $\mathsf{HTLC}[s]$
-%             \If {$H(k) = s$}
-%             \State \Return 1
-%             \Else
-%             \State \Return 0
-%             \EndIf
-%             \EndFunction
-%         \end{algorithmic}
-%     \end{framed}
-%     \caption{XorCake in the GMHL framework}
-%     \label{fig:mh}
-% \end{figure}
+            \State generate $\lambda$-bit random numbers $\{ r_1,\dots,r_n \}$
+            \For{$i$ in $1,\dots,n$}
+            \State $s_i \gets H(r_i\oplus r_{i+1}\oplus\dots\oplus r_n)$
+            \If {$i=n$}
+            \State send $(k_n=r_n, s_n)$ to $U_n$
+            \Else
+            \State send $(r_i, s_i, s_{i+1})$ to $U_i$
+            \EndIf
+            \EndFor
+            \EndFunction
+        \end{algorithmic}
+        \medskip
+        \begin{algorithmic}
+            \Function{$\mathsf{Create}^\mathrm{XC}_{U_i}$}{$s_i^I = (r_i,s_i,s_{i+1})$}\\
+            \emph{Upon invocation by $U_i$, where $i<n$:}
+            \State \Return $\ell_{i+1} = \mathsf{HTLC}[s_{i+1}]$
+            \EndFunction
+        \end{algorithmic}
+        \medskip
+        \begin{algorithmic}
+            \Function{$\mathsf{Unlock}^\mathrm{XC}_{U_i}$}{$\ell_{i+1}, s_i^I=(r_i,s_i,s_{i+1}),k_{i+1}$}\\
+            \emph{Upon invocation by $U_i$, where $i<n$:}
+            %\State parse $\ell_{i+1}$ as $\mathsf{HTLC}[s_{i+1}]$
+            \If {$\mathsf{Vf}^\mathrm{XC}(\ell_{i+1},k_{i+1}) = 0$}
+            \State \textbf{abort}
+            \EndIf
+            \State $k_i \gets r_i \oplus k_{i+1}$
+            \State \Return $k_i$
+            \EndFunction
+        \end{algorithmic}
+        \medskip
+        \begin{algorithmic}
+            \Function{$\mathsf{Vf}^\mathrm{XC}$}{$\ell,k$}
+            \State parse $\ell$ as $\mathsf{HTLC}[s]$
+            \If {$H(k) = s$}
+            \State \Return 1
+            \Else
+            \State \Return 0
+            \EndIf
+            \EndFunction
+        \end{algorithmic}
+    \end{framed}
+    \caption{XorCake in the GMHL framework}
+    \label{fig:mh}
+\end{figure}
 
-XorCake by itself satisfies relationship anonymity. A full proof is available in the Fulgor paper \cite{malavolta2019anonymous}, but intuitively this is because $r_i$ will be randomly distributed over the space of possible strings because $H$ behaves like a random oracle. This means that unlike in HTLC, no two nodes $U_i$ and $U_j$ can deduce that they are part of the same payment path unless they are adjacent.
+XorCake by itself satisfies relationship anonymity. A full proof is available in the Fulgor paper from which XorCake was borrowed \cite{malavolta2019anonymous}, but intuitively this is because $r_i$ will be randomly distributed over the space of possible strings because $H$ behaves like a random oracle. This means that unlike in HTLC, no two nodes $U_i$ and $U_j$ can deduce that they are part of the same payment path unless they are adjacent.
+
+\paragraph*{Bad-state attack} Unfortunately, \emph{XorCake does not have balance security}. Consider a malicious sender who follows the protocol correctly, except for sending an incorrect $r_i$ to $U_i$. (Note that $U_i$ cannot detect that $r_i$ is incorrect assuming a random-oracle hash function) Then, when $\ell_{i+1}$ is unlocked, $\ell_{i}$ cannot be spent, since $U_i$ cannot reconstruct the solution to its left lock from that of its right lock without the correct $r_i$. In an actual PCN such as the Lightning Network, all coins ``left'' of $U_i$ will time out, letting the money go back to $U_0$. $U_0$ paid $U_n$ with $U_i$'s money instead of her own! We call this the ``bad-state attack'', and because of it, XorCake is not a viable PCN construction on its own. In Fulgor, XorCake was combined with out-of-band zero-knowledge proofs of the correctness of $r_i$, but as we will see shortly, Astrape can dispense with it.
+
+\subsection{HashOnion: secure but eventually non-anonymous}
+
+We now present HashOnion, a PCN construction that has balance security but not relationship anonymity. Note that unlike HTLC, HashOnion's non-anonymity stems entirely from information leaked in the $\mathsf{Unlock}$ phase, a property we will leverage to build a fully anonymous construction combining HashOnion and XorCake.
+
+At the beginning of the transaction, $U_0$ generates random values $s_i$ for $i\in \{1,\dots,n\}$, then ``onion-like'' values $x_i$, recursively defined as:
+\begin{align*}
+    x_i & = H(s_i||x_{i+1})     \\
+    x_n & = H(s_n || 0^\lambda)
+\end{align*}
+Essentially, $x_i$ is a value that commits to all $s_j$ where $j>i$.
+
+The sender sends $(x_i, s_i)$ to $U_i$ . Then, each intermediary $U_{i-1}$ sends to its successor $U_i$ a lock $\ell_i$, which can be only be unlocked by some $k_i = (s_i, \dots, s_n)$ where $H(s_i||H(s_{i+1}||H( \dots H(s_n || 0^\lambda) ))) = x_{i-1}$. Finally, during the unlock phase, the recipient $U_n$ solves $\ell_n$ with $k_n = (s_n)$. This allows each $U_i$ to spend $\ell_i$, completing the transaction.
+
+For balance security, we need to show that with a solution $k_{i+1}=(s_{i+1}, \dots, s_{n})$ to $\ell_{i+1}$ and $s_i$, we can always construct a solution to $\ell_i$ . This is obvious: we just add $s_i$ to the solution: $k_i=(s_i,s_{i+1}, \dots, s_n)$.
+
+One subtle problem is that $U_i$ needs to make sure that its right coin is actually the correct $\ell_i$ and not some bad $\ell_i'$ parameterized over some $x_{i-1} \neq H(s_i || x_i')$ . Fortunately, this is easy: given $x_{i-1}$ (which it always knows from $\ell_i$), $U_i$ can just check that $x_{i-1} =H(s_i||x_i)$ before sending out $\ell_{i+1}$ to the next hop. Thus, every user can make sure that if its right coin is spent, so can its left coin, so balance security holds.
+
+We also see that although the unlocking procedure obviously breaks relationship anonymity by revealing all the $s_i$, before the unlock happens, HashOnion does have relationship anonymity. This is because the adversary cannot connect the different $x_i$ as long as one $s_i$ remains secret --- that of the one honest intermediary we assume.
+
+\subsection{Securing XorCake+HashOnion with a fraud proof}
+
+We now move on to composing XorCake and HashOnion. We do so by creating a variant of HashOnion that embeds XorCake and recognizes \emph{fraud proofs} that prove an attempt by the sender to execute a bad-state attack for XorCake.
+
+After generating the XorCake parameters, $U_0$ creates $n$ $\lambda$-bit values $x_i$ recursively:
+\begin{align*}
+    x_i & = H(\overbrace{r_i||s_i||s_{i+1}}^{\mathclap{\text{XorCake parameters}}}||o_i||x_{i+1}) \\
+    x_n & = o_n
+\end{align*}
+where $o_i$ is a random nonce sampled uniformly from all possible $\lambda$-bit values.\footnote{$||$ denotes concatenation. In our case, it's possible to unambiguously separate concatenated values, since we only ever concatenate $\lambda$-bit values.} The intuition here is that $x_i$ \emph{commits} to all the information $U_0$ would give to all hops $U_j$ where $j\geq i$.
+
+Afterwards, the sender then uses an anonymous channel to send $(o_i,x_i,x_{i+1})$ to every hop $i$. Every hop $U_i$ checks that all the parameters, including the XorCake parameters $(r_i,s_i,s_{i+1})$ given earlier, are consistent with each other.
+
+We next consider what will happen if the sender attempts to defraud an intermediate hop $U_i$ with a bad-state attack. $U_{i+1}$ would unlock its left lock $\ell_{i+1}$ by giving $k_{i+1}$ where $H(k_{i+1})= s_{i+1}$ but $H(r_i\oplus k_{i+1})\neq s_i$. This then causes $\mathsf{Unlock}^\mathrm{XC}_{U_i}$ to fail.
+
+But this attempt at fraud allows $U_i$ to generate a cryptographic \emph{fraud proof} verifiable to anybody knowing $x_i$: $\lambda$-bit values $k_{i+1}$, $r_i$, $s_i$, $s_{i+1}$, $o_i$ ,$x_{i+1}$ where:
+\begin{align*}
+    H(k_{i+1})                         & = s_{i+1} \\
+    H(r_i \oplus k_{i+1})              & \neq s_i  \\
+    H(r_i||s_i||s_{i+1}||o_i||x_{i+1}) & = x_i
+\end{align*}
+
+This fraud proof proves the preimage of $s_{i+1}$ XOR-ed with $r_i$ does not equal the preimage of $s_i$, demonstrating that the values given to $U_i$ are inconsistent and that $U_0$ is corrupt. Since $U_{i-1}$ knows $x_i$, $U_i$ can therefore prove that it was a victim of a bad-state attack to $U_{i-1}$.
+
+Since $x_i$ commits to \emph{all} XorCake initialization states ``rightwards'' of $U_i$, $U_i$, in cooperation with $U_{i-1}$, can also produce a fraud proof that $U_{i-2}$ can verify using $x_{i-1}$. This is a set of simply $\lambda$-bit values $k_{i+1}$, $r_{i-1}$, $s_{i-1}$, $r_i$, $s_i$,$s_{i+1}$, $x_i$, $x_{i+1}$ where:
+\begin{align*}
+    H(k_{i+1})                               & = s_{i+1} \\
+    H(r_i \oplus k_{i+1})                    & \neq s_i  \\
+    H(r_i||s_i||s_{i+1}||o_i||x_{i+1})       & = x_i     \\
+    H(r_{i-1}||s_{i-1}||s_{i}||o_{i-1}||x_i) & = x_{i-1}
+\end{align*}
+
+We can clearly extend this idea all the way back to $U_1$ --- given a fraud proof demonstrating a bad-state attack against $U_i$, $U_{i-1}$ can verify the proof and generate a similar proof verifiable by $U_{i-2}$, and so on. This forms the core construction that Astrape uses to fix XorCake's lack of balance security.
+
 
 \begin{figure*}
     \centering
@@ -390,7 +456,7 @@ XorCake by itself satisfies relationship anonymity. A full proof is available in
                 \State $\Gamma_i \gets r_i||s_i||s_{i+1}||o_i$
                 \State parse $s_i^I = (r_i,s_i,s_{i+1},x_i,x_{i+1},o_i)$
                 \If {parse $k_{i+1} = \mathsf{HSoln}[\kappa_{i+1}]$}
-                \If {$H(\kappa_i \oplus s_{i+1}) = s_i$}
+                \If {$H(r_i \oplus \kappa_{i+i} \oplus s_{i+1}) = s_i$}
                 \State \Return $k_i = \mathsf{HSoln}[r_i \oplus \kappa_{i+1}]$
                 \Else
                 \State \Return $k_i = \mathsf{FSoln}[\kappa_{i+1}, x_{i+1}, \{ \Gamma_i \}]$
@@ -429,76 +495,21 @@ XorCake by itself satisfies relationship anonymity. A full proof is available in
     \label{fig:astrapegm}
 \end{figure*}
 
-\paragraph*{Bad-state attack} Unfortunately, \emph{XorCake does not have balance security}. Consider a malicious sender who follows the protocol correctly, except for sending an incorrect $r_i$ to $U_i$. (Note that $U_i$ cannot detect that $r_i$ is incorrect, since it can't be reconstructed from $s_i$ and $s_{i+1}$ without breaking the hash function.) Then, when $\ell_{i+1}$ is unlocked, $\ell_{i}$ cannot be spent, since $U_i$ cannot reconstruct the solution to its left lock from that of its right lock without the correct $r_i$. In an actual PCN such as the Lightning Network, all coins ``left'' of $U_i$ will eventually time out, letting the money go back to $U_0$. $U_0$ paid $U_n$ with $U_i$'s money instead of her own! We call this the ``bad-state attack'', and because of it, XorCake is not a viable PCN construction on its own.
-
-\subsection{HashOnion: secure but eventually non-anonymous}
-
-We now present HashOnion, a PCN construction that has balance security but not relationship anonymity. Note that unlike HTLC, HashOnion's non-anonymity stems entirely from information leaked in the $\mathsf{Unlock}$ phase, a property we will leverage to build a fully anonymous construction combining HashOnion and XorCake.
-
-At the beginning of the transaction, $U_0$ generates random values $s_i$ for $i\in \{1,\dots,n\}$, then ``onion-like'' values $\mu_i$, recursively defined as:
-\begin{align*}
-    \mu_i & = H(s_i||\mu_{i+1})   \\
-    \mu_n & = H(s_n || 0^\lambda)
-\end{align*}
-Essentially, $\mu_i$ is a value that commits to all $s_j$ where $j>i$.
-
-The sender sends $(\mu_i, s_i)$ to $U_i$ . Then, each intermediary $U_{i-1}$ sends to its successor $U_i$ a lock $\ell_i$, which can be only be unlocked by some $k_i = (s_i, \dots, s_n)$ where $H(s_i||H(s_{i+1})||H( \dots H(s_n || 0^\lambda) ))) = \mu_{i-1}$. Finally, during the unlock phase, the recipient $U_n$ solves $\ell_n$ with $k_i = (s_n)$. This allows each $U_i$ to spend $\ell_i$, completing the transaction.
-
-For balance security, we need to show that with a solution $k_{i+1}=(s_{i+1}, \dots, s_{n})$ to $\ell_{i+1}$ and $s_i$ , we can always construct a solution to $\ell_i$ . This is obvious: we just add $s_i$ to the solution: $k_i=(s_i,s_{i+1}, \dots, s_n)$.
-
-One subtle problem is that $U_i$ needs to make sure that its right coin is actually the correct $\ell_i$ and not some bad $\ell_i'$ parameterized over some $\mu_{i-1} \neq H(s_i || \mu_i')$ . Fortunately, this is easy: given $\mu_{i-1}$ (which it always knows because it's embedded in $\ell_i$), $U_i$ can just check that $\mu_{i-1} =H(s_i||\mu_i)$ before sending out $\mathcal{L}(i,\mu_i)$ . Thus, every user can make sure that if its right coin is spent, so can its left coin, so there's no question of balance security being violated.
-
-We also see that although the unlocking procedure obviously breaks relationship anonymity by revealing all the $s_i$, before the unlock happens, HashOnion does have relationship anonymity. This is because the adversary cannot connect the different $\mu_i$ as long as one $s_i$ remains secret --- that of the one honest intermediary we assume.
-
-\subsection{Securing XorCake+HashOnion with a fraud proof}
-
-We now move on to composing XorCake and HashOnion. We do so by creating a variant of HashOnion that embeds XorCake and recognizes \emph{fraud proofs} that prove an attempt by the sender to execute a bad-state attack for XorCake. How can we do so?
-
-After generating the XorCake parameters, $U_0$ creates $n$ $\lambda$-bit values $x_i$ recursively:
-\begin{align*}
-    x_i & = H(r_i||s_i||s_{i+1}||o_i||x_{i+1}) \\
-    x_n & = o_n
-\end{align*}
-where $o_i$ is a random nonce sampled uniformly from all possible $\lambda$-bit values.\footnote{$||$ denotes concatenation. In our case, it's possible to unambiguously separate concatenated values, since we only ever concatenate $\lambda$-bit values.} The intuition here is that $x_i$ \emph{commits} to all the information $U_0$ would give to all hops $U_j$ where $j\geq i$.
-
-Afterwards, the sender then uses an anonymous channel to send $(o_i,x_i,x_{i+1})$ to every hop $i$. Every hop $U_i$ checks that all the parameters, including the XorCake parameters $(r_i,s_i,s_{i+1})$ given earlier, are consistent with each other.
-
-Now let's consider what will happen if the sender attempts to defraud an intermediate hop $U_i$ with a bad-state attack. $U_{i+1}$ would unlock its left lock $\ell_{i+1}$ by giving $k_{i+1}$ where $H(k_{i+1})= s_{i+1}$ but $H(r_i\oplus k_{i+1})\neq s_i$. This then causes $\mathsf{Unlock}^\mathrm{XC}_{U_i}$ to fail.
-
-But this attempt at fraud allows $U_i$ to generate a cryptographic \emph{fraud proof} verifiable to anybody knowing $x_i$: $\lambda$-bit values $k_{i+1}$, $r_i$, $s_i$, $s_{i+1}$, $o_i$ ,$x_{i+1}$ where:
-\begin{align*}
-    H(k_{i+1})                         & = s_{i+1} \\
-    H(r_i \oplus k_{i+1})              & \neq s_i  \\
-    H(r_i||s_i||s_{i+1}||o_i||x_{i+1}) & = x_i
-\end{align*}
-
-This fraud proof proves the preimage of $s_{i+1}$ XOR-ed with $r_i$ does not equal the preimage of $s_i$, demonstrating that the values given to $U_i$ are inconsistent and that $U_0$ is corrupt. Since $U_{i-1}$ knows $x_{i+1}$, $U_i$ can therefore prove that it was a victim of a bad-state attack to $U_{i-1}$.
-
-Since $x_i$ commits to \emph{all} XorCake initialization states ``rightwards'' of $U_i$, $U_i$, in cooperation with $U_{i-1}$, can also produce a fraud proof that $U_{i-2}$ can verify using $x_{i-2}$. This is a set of simply $\lambda$-bit values $k_{i+1}$, $r_{i-1}$, $s_{i-1}$, $r_i$, $s_i$,$s_{i+1}$, $x_i$, $x_{i+1}$ where:
-\begin{align*}
-    H(k_{i+1})                               & = s_{i+1} \\
-    H(r_i \oplus k_{i+1})                    & \neq s_i  \\
-    H(r_i||s_i||s_{i+1}||o_i||x_{i+1})       & = x_i     \\
-    H(r_{i-1}||s_{i-1}||s_{i}||o_{i-1}||x_i) & = x_{i-1}
-\end{align*}
-
-We can clearly extend this idea all the way back to $U_i$ --- given a fraud proof demonstrating a bad-state attack against $U_n$, $U_{n-1}$ can verify the proof and generate a similar proof verifiable by $U_{n-2}$, and so on and so forth. This forms the core construction that Astrape uses to fix XorCake's lack of balance security.
-
 \subsection{Complete construction}
 
-Let's now discuss the complete construction of Astrape, as formalized in Figure \ref{fig:astrapegm} within the GMHL framework.
+We now present the complete construction of Astrape, as formalized in Figure \ref{fig:astrapegm} within the GMHL framework.
 
 \paragraph*{Initialization}
 
-In the first phase, represented as $\mathsf{Init}$ in GMHL, the sender $U_0$ first establishes anonymous communication to the $n$ hops $U_1,\dots,U_n$, the last one of which is the receiver. This uses our abstract functionality $\mathcal{F}_\mathsf{anon}$, which is implied whenever we ``send'' something.
+In the first phase, represented as $\mathsf{Init}$ in GMHL, the sender $U_0$ first establishes communication to the $n$ hops $U_1,\dots,U_n$, the last one of which is the receiver. When talking to intermediaries, $U_0$ uses our abstract functionality $\Fanon$, but communication with the recipient is authenticated with $\Fauth$.
 
-The sender then generates random $\lambda$-bit strings $(r_1,\dots,r_n)$ and $(o_1,\dots,o_n)$. From these strings, she derives $s_i=H(r_i\oplus r_{i_1}\oplus\dots \oplus r_n)$ and $x_i=H(r_i||s_i||s_{i+1}||o_i||x_{i+1}); x_n=H(o_n)$. She then sends to each intermediate hop $U_i$ the tuple $s^I_i=(r_i,s_i,s_{i+1},x_i,x_{i+1},o_i)$ and gives the last hop $U_n$ the initial state $s^I_n=(r_n,s_n)$ and the unlocking key $k_n=\mathsf{HSoln}[r_n]$. Every hop $U_i$ checks that the values are self-consistent; if this check fails the hop must not proceed with the protocol.
+The sender then generates random $\lambda$-bit strings $(r_1,\dots,r_n)$ and $(o_1,\dots,o_n)$. From these strings, she derives $s_i=H(r_i\oplus r_{i+1}\oplus\dots \oplus r_n)$ and $x_i=H(r_i||s_i||s_{i+1}||o_i||x_{i+1}); x_n=H(o_n)$. She then sends to each intermediate hop $U_i$ the tuple $s^I_i=(r_i,s_i,s_{i+1},x_i,x_{i+1},o_i)$ and gives the last hop $U_n$ the initial state $s^I_n=(r_n,s_n)$ and the unlocking key $k_n=\mathsf{HSoln}[r_n]$\footnote{We use the notation $\mathsf{Tag}[x_1, \dots, x_n]$ to represent a $n$-tuple of values with an arbitrary ``tag'' that identifies the type of value.}.  Every hop $U_i$ checks that the values are self-consistent by verifying that $x_i=H(r_i||s_i||s_{i+1}||o_i||x_{i+1})$; if this check fails the hop must not proceed with the protocol. According to our liveness assumptions, an ``abort'' will lead to a cascading timeout of coins left of the aborting intermedary, restoring balance security.
 
 \paragraph*{Creating the coins}
 
 We now move on to $\mathsf{Create}$, where all the coins are initially locked. $U_0$ then sends $U_1$ a coin encumbered with a lock represented as $\ell_1 = \mathsf{Astrape}[x_1,s_1]$. When each hop $U_i$ receives a correctly formatted coin from its previous hop $U_{i-1}$, it sends the next hop $U_{i+1}$ a coin with a lock $\ell_{i+1} = \mathsf{Astrape}[x_{i+1}, s_{i+1}]$.
 
-Each of these locks $\ell_i$ can be spent either through solving a XorCake-type puzzle to find the preimage of $s_i$ (the ``normal'' case) or by presenting a fraud proof with a HashOnion-type witness demonstrating $x_i$'s commitment (the ``fraud proof'' case).
+Each of these locks $\ell_i$ can be spent either through solving a XorCake-type puzzle to find the preimage of $s_i$ (the ``normal'' case) or by presenting a fraud proof with a HashOnion-type witness demonstrating $x_i$'s commitment to inconsistent data (the ``fraud proof'' case).
 
 After all the transactions with $\mathsf{Astrape}$-encumbered coins are sent, $U_n$ can finally claim its money, triggering the next phase of the protocol.
 
@@ -512,7 +523,7 @@ Each intermediate node $U_i$ reacts when its right lock $\ell_{i+1}$ is unlocked
     \item If $U_{i+1}$ solved the HTLC puzzle with $k_{i+1} = \mathsf{HSoln}[\kappa_{i+1}]$, construct $\kappa_i = r_i \oplus \kappa_{i+1}$
           \begin{itemize}
               \item If $H(\kappa_i \oplus s_{i+1}) = s_i$, this means that there is no bad-state attack happening. We unlock our left lock with $k_i = \mathsf{HSoln}[\kappa_i]$.
-              \item Otherwise, there must be a bad-state attack happening! We construct a fraud proof and create a key that embeds the fraud proof and a witness verifiable with $x_i$. This gives us $k_i = \mathsf{FSoln}[\kappa_{i+1}, x_{i+1}, \{ \Gamma_i \}]$, where $\Gamma_i = r_i||s_i||s_{i+1}||o_i$.
+              \item Otherwise, there must be a bad-state attack happening. We construct a fraud proof and create a key that embeds the fraud proof and a witness verifiable with $x_i$. This gives us $k_i = \mathsf{FSoln}[\kappa_{i+1}, x_{i+1}, \{ \Gamma_i \}]$, where $\Gamma_i = r_i||s_i||s_{i+1}||o_i$.
           \end{itemize}
     \item Otherwise, $U_{i+1}$ unlocked $\ell_{i+1}$ with a fraud proof $k_{i+1} = \mathsf{FSoln}[\kappa_{j}, x_j, \{ \Gamma_{i+1}, \Gamma_{i+2}, \dots, \Gamma_j \}]$ demonstrating that the sender attempted to defraud some $U_j$, where $j>i$.
           \begin{itemize}
@@ -524,7 +535,7 @@ This process continues backwards towards the sender until all the coins created 
 
 \section{Security and privacy analysis} \label{sec:secpriv}
 
-Let's see how Astrape accomplishes all of our security and privacy goals.
+Let us see how Astrape accomplishes all of our security and privacy goals.
 
 \subsection{Relationship anonymity}
 
@@ -532,20 +543,33 @@ Out of our three desired properties, relationship anonymity is the most importan
 
 Thus, we present proof that Astrape does achieve relationship anonymity. Note that within this proof, we assume that the sender $U_0$ and one particular $U_i$ is honest according to the definition of relationship anonymity, while everybody else can be compromised by the adversary $\mathcal{A}$.
 
+\begin{lemma}\label{lem:nocorrupt}
+    The adversary cannot gain any information by corrupting $\Fanon$ messages sent by $U_0$ to the honest intermediary $U_i$.
+\end{lemma}
+
+\begin{proof}
+    Because $\Fanon$ hides the sender, all the messages sent by $U_0$ to $U_i$ can trivially be forged. This can prove problematic, because in the rest of our analysis of relationship anonymity we want to treat messages that $U_i$ obtained through $\Fanon$ as authentic messages from $U_0$. However, if we prove that the adversary cannot gain any information from corrupting these messages, corrupting these messages cannot lead to a break in relationship anonymity, so we can then assume the messages are not corrupted.
+
+    We first note that due to $U_i$'s self-consistency check of $x_i = H(r_i||s_i||s_{i+1}||o_i||x_{i+1})$, any forgery of one variable requires the adversary either to \emph{know} or \emph{forge} every other variable. Therefore, after a corrupted $\mathsf{Init}$, the only values $U_0$ wished to send to $U_i$ that the adversary doesn't know --- $r_i,o_i$  --- are destroyed. There is thus nothing in $s^I_i$ now that $U_i$ could reveal to the adversary in later stages of the protocol to possibly break relationship anonymity.
+
+    \textbf{TODO}: make this argument rigorous
+
+\end{proof}
+
 \begin{lemma}\label{lem:nocol}
-    Given an honest sender, the left and right locks of the honest intermediary $U_i$, $\ell_i$ and $\ell_{i+1}$, are always unlocked normally and never by fraud proof. That is, no malicious intermediary can ``frame'' an honest sender with a fraud proof.
+    Given an honest sender and uncorrupted communication between it and the honest intermediary $U_i$, the left and right locks of $U_i$, $\ell_i$ and $\ell_{i+1}$, are always unlocked normally and never by fraud proof. That is, no malicious intermediary can ``frame'' an honest sender with a fraud proof.
 \end{lemma}
 
 \begin{proof}
     There are only two cases where an honest $U_i$ unlocks the left coin $\ell_i$ by fraud proof:
     \begin{enumerate}
         \item The right lock was unlocked normally, but with an XorCake solution $\kappa$ where $H(\kappa) = s_{i+1}$ yet $H(r_i \oplus \kappa) \neq s_i$.
-        \item The right lock was unlocked with a fraud proof recognized by Hashonion.
+        \item The right lock was unlocked with a fraud proof recognized by HashOnion.
     \end{enumerate}
 
-    The first case is impossible with an honest sender since our hash function is collision-resistant. There is no $\kappa$ that can satisfy the requirements, since the sender ensures that $H(r_i \oplus H^{-1}(s_{i+1})) = s_i$.
+    The first case is impossible with an honest sender since our hash function is secure. Finding such a $\kappa$ would imply finding two different values $\kappa,\kappa'$ where $H(r_i \oplus \kappa) \neq s_i$ but $H(r_i \oplus \kappa') = s_i$.
 
-    In the second case, it is clear that under the random oracle model there must be an $j > i$ where $s^I_j$ is corrupt. But since we know that $U_0$ is honest, this is impossible too.
+    In the second case, under the random oracle model, where we can assume that $H$ acts as a binding commitment scheme, this means that $x_{i+1}$ commits to inconsistent information that violates the protocol. But since we know that $U_0$ is honest, such an $x_{i+1}$ could not have been sent to $U_i$, so this is impossible too.
 
     Thus, there cannot be any fraud proofs used when unlocking $\ell_i$ and $\ell_{i+1}$.
 \end{proof}
@@ -555,18 +579,18 @@ Thus, we present proof that Astrape does achieve relationship anonymity. Note th
 \end{lemma}
 
 \begin{proof}
-    We assume that the attacker $\mathcal{A}$ has corrupted all intermediate nodes before and after $U_i$. This means that in the $\mathsf{Init}$ phase, $\mathcal{A}$ learns all states $s^I_j$ where $j \notin \{ i, n \}$ for the first transaction, and also all states $s'^I_j$ where $j \notin \{ i, n \}$ for the second transaction, but not the internal state of $U_i$, which is $s^{(')I}_i$. The only values revealed to $\mathcal{A}$ that contains the internal state of $U_i$ are commitments $x_j$ where $j \leq i$ --- but reconstructing $U_i$'s initial state from $x_j$ implies breaking the preimage resistance of $H$, which is impossible if $H$ is a random oracle.
+    We assume that the attacker $\mathcal{A}$ has corrupted all intermediate nodes before and after $U_i$. This means that in the $\mathsf{Init}$ phase, $\mathcal{A}$ learns all states $s^I_j$ where $j \notin \{ i, n \}$ for the first transaction, and also all states $s'^I_j$ where $j \notin \{ i, n \}$ for the second transaction, but not the internal state of $U_i$, which is $s^{(')I}_i$. The only values revealed to $\mathcal{A}$ that contain the internal state of $U_i$ are commitments $x_j$ where $j \leq i$ --- but reconstructing $U_i$'s initial state from $x_j$ implies breaking the preimage resistance of $H$, which is impossible if $H$ is a random oracle.
 
-    In the $\mathsf{Create}$ phase, we note that $U_i$ obviously does not reveal any internal state except $s^{(')}_{i+1}$ and $x^{(')}_{i+1}$, which the attacker already knows from $\mathsf{Init}$. Furthermore, by \ref{lem:nocol} we know that the two locks surrounding $U_i$ can only be unlocked through the HTLC-based ``normal'' case, which again does not reveal more information about $s^{(')}_{i}$.
+    In the $\mathsf{Create}$ phase, we note that $U_i$ obviously does not reveal any internal state except $s^{(')}_{i+1}$ and $x^{(')}_{i+1}$, which the attacker already knows from $\mathsf{Init}$. Furthermore, by Lemma \ref{lem:nocol} we know that the two locks surrounding $U_i$ can only be unlocked through the HTLC-based ``normal'' case, which again does not reveal more information about $s^{(')}_{i}$.
 
-    Thus, the attacker's game reduces to guessing the predecessor and successor of $U_i$ for both transactions, given all states $s^{(')I}_{j}$ for $j \notin \{ i, n \}$, with probability more than $1/2 + \epsilon$, where $\epsilon \propto 2^{-\lambda}$. We can further reduce this to $\mathcal{A}$ guessing whether or not two states $\hat{s}_{i-1}^I$ and $\hat{s}_{i+1}^I$ from corrupt users adjacent to $U_i$ come from the same transaction.
+    Thus, the attacker's game reduces to guessing the predecessor and successor of $U_i$ for both transactions, given all states $s^{(')I}_{j}$ for $j \notin \{ i, n \}$, with probability non-negligibly more than $1/2$ (as a function of $\lambda$). We can further reduce this to $\mathcal{A}$ guessing whether or not two states $\hat{s}_{i-1}^I$ and $\hat{s}_{i+1}^I$ from corrupt users adjacent to $U_i$ come from the same transaction.
 
-    At this point, we can proceed with a proof by contradiction. Assume that $\mathcal{A}$ can, in fact, guess whether or not $\hat{s}_{i-1}^I$ and $\hat{s}_{i+1}^I$ come from the same transaction. This implies that $\mathcal{A}$ can derive $\Omega$ in
+    At this point, we can proceed with a proof by contradiction. Assume that $\mathcal{A}$ can, in fact, guess whether or not $\hat{s}_{i-1}^I$ and $\hat{s}_{i+1}^I$ come from the same transaction. This implies that $\mathcal{A}$ can distinguish between two possible values of $\Omega$ in
     \begin{align*}
         \hat{s}_{i-1}^I & = (\hat{r}_{i-1}, \hat{s}_{i-1}, \hat{s}_i, \hat{x}_{i-1}, \hat{x}_i, o_{i-1}) \text{ where} \\
         \hat{x}_i       & = H(\hat{r}_i||\hat{s}_i||{\Omega}||\hat{x}_{i+1})
     \end{align*}
-    with more than $1/2 + \epsilon$ probability, given only the values of $\hat{s}_{i-1}^I$ and $\hat{s}_{i+1}^I=(r_{i+1},s_{i+1},x_{i+1},o_i)$. But this implies breaking partial-preimage resistance of $H$, which is impossible for a random oracle.
+    with more than $1/2 + \epsilon$ probability, given only the values of $\hat{s}_{i-1}^I$ and $\hat{s}_{i+1}^I=(r_{i+1},s_{i+1},x_{i+1},o_i)$. But this implies breaking preimage resistance of $H$, which is impossible for a random oracle.
 \end{proof}
 
 \begin{theorem}
@@ -579,10 +603,10 @@ Thus, we present proof that Astrape does achieve relationship anonymity. Note th
 
 \subsection{Balance security}
 
-Let's now informally show that Astrape has balance security.
+We now show that Astrape has balance security.
 
 \begin{lemma}\label{lem:balsec}
-    An honest user $U_i$ always receives enough information to unlock its left lock $\ell_{i}$ if its right coin $\ell_{i+1}$ is unlocked.
+    An honest user $U_i$ always receives enough information to unlock its left lock $\ell_{i}$ if its right lock $\ell_{i+1}$ is unlocked.
 \end{lemma}
 
 \begin{proof}
@@ -590,9 +614,9 @@ Let's now informally show that Astrape has balance security.
 
     In the first case, $\ell_{i+1}$ is unlocked by solving the XorCake component --- with $k_{i+1} = \mathsf{HSoln}[\kappa_{i+1}]$.
 
-    Either $\kappa$ satisfies $H(r_i \oplus \kappa) = s_i$ or it doesn't. If it does, $U_i$ can construct $\kappa' = H(r_i \oplus \kappa)$ and use $k_i=\mathsf{HSoln}[\kappa]$ to unlock $\ell_i = \mathsf{Astrape}[s_i,x_i]$. If it doesn't, we have a fraud proof, and we can construct $k_i=\mathsf{FSoln}[\kappa, x_{i+1}, \{ \Gamma_i \}]$ where $\Gamma_i = r_i||s_i||s_{i+1}||o_i$, and $H(\Gamma_i||x_{i+1})=x_i$. This $k_i$ is guaranteed to unlock $\ell_i$.
+    Either $\kappa$ satisfies $H(r_i \oplus \kappa) = s_i$ or it does not. If it does, $U_i$ can construct $\kappa' = H(r_i \oplus \kappa)$ and use $k_i=\mathsf{HSoln}[\kappa]$ to unlock $\ell_i = \mathsf{Astrape}[s_i,x_i]$. If it doesn't, we have a fraud proof, and we can construct $k_i=\mathsf{FSoln}[\kappa, x_{i+1}, \{ \Gamma_i \}]$ where $\Gamma_i = r_i||s_i||s_{i+1}||o_i$, and $H(\Gamma_i||x_{i+1})=x_i$. This $k_i$ is guaranteed to unlock $\ell_i$.
 
-    In the second case, our right coin $\ell_{i+1}$ is spent by fraud proof using the HashOnion-like component. We can construct our own $k_i$ to unlock $\ell_i$ by simply extending the fraud proof with an additional $\Gamma_i$.
+    In the second case, our right lock $\ell_{i+1}$ is spent by fraud proof using the HashOnion-like component. We can construct our own $k_i$ to unlock $\ell_i$ by simply extending the fraud proof with an additional $\Gamma_i$.
 \end{proof}
 
 \begin{theorem}
@@ -600,9 +624,9 @@ Let's now informally show that Astrape has balance security.
 \end{theorem}
 
 \begin{proof}
-    For every intermediary $U_i$, its left coin has funds equal to its right coin (plus fees). Following \ref{lem:balsec}, this means that any money lost by $U_i$'s right coin being spent can always be recovered by spending its left coin. Thus, intermediaries cannot lose any money.
+    For every intermediary $U_i$, its left lock has funds equal to its right lock (plus fees). Following \ref{lem:balsec}, this means that any money lost by $U_i$'s right lock being spent can always be recovered by spending its left lock. Thus, intermediaries cannot lose any money.
 
-    Therefore, Astrape has balance security according to its definition.
+    Therefore, Astrape has balance security according to its definition in Section \ref{secprivgoals}.
 \end{proof}
 
 \subsection{Wormhole immunity}
@@ -612,47 +636,29 @@ The wormhole attack \cite{malavolta2019anonymous} is a generic attack on PCNs wh
 Astrape is immune to the wormhole attack. This is because when $U_{i+1}$ is honest, $\ell_{i+1}$ must be unlocked before $U_i$ even has the information to unlock $\ell_{i}$ --- information from ``further down the line'' at $U_j$ where $j>{i+1}$ is not sufficient. We note that Astrape fits the model given in the AMHL paper \cite{malavolta2019anonymous} for wormhole-immune PCN constructions, since the sender must know the complete path before sending money and there are two rounds of communication.
 
 
-\begin{table*}[t]
-    \caption{Resource usage of different PCN systems}
-    \label{tab:resusage}
-    \centering
-    \begin{tabular}{lccccc}
-        \toprule
-                                         & Plain HTLC   & Fulgor/Rayo       & AMHL (ECDSA)  & Astrape        & Astrape (BCH)  \\
-        \midrule
-        Computation time (ms)            & $<0.001$     & $264\cdot n$      & $3 \cdot n$   & $0.25 \cdot n$ & $1.31 \cdot n$ \\
-        Communication size (bytes)       & $32 \cdot n$ & $1650000 \cdot n$ & $544 \cdot n$ & $192 \cdot n$  & $192 \cdot n$  \\
-        \midrule
-        Lock size (bytes)                & $32 + c$     & $32 + c$          & $32+c$        & $64+d$         & $120 + 56n^2$  \\
-        Unlock size, normal case (bytes) & $32$         & $32$              & $64$          & $32$           & $32$           \\
-        Unlock size, worst case (bytes)  & $32$         & $32$              & $64$          & $32 \cdot n$   & $32 \cdot n$   \\
-        \bottomrule
-    \end{tabular}
-\end{table*}
-
 \section{Practical concerns} \label{sec:practical}
 
 \subsection{Blockchain implementation}
 
-So far we've presented Astrape in an abstract GMHL model, but of course, real-world PCNs and blockchains do not work exactly this way. How can Astrape be implemented in popular cryptocurrency blockchains?
+So far we have presented Astrape in an abstract GMHL model. We now present how Astrape may be implemented in popular cryptocurrency blockchains.
 
-Astrape is easy to implement on blockchains with Turing-complete scripting languages, like Ethereum, as well as layer-2 PCNs such as Raiden. One simply has to replace HTLC-based constructs with Astrape-based ones. Since Astrape does not use any novel cryptographic primitives, built-in hash and signature functions can be used, reducing ``gas'' costs significantly. Furthermore, in a Turing-complete scripting language, the recursive $\mathsf{Vf}$ algorithm can be compactly represented, leading to less space usage.
+Astrape is easy to implement on blockchains with Turing-complete scripting languages, like Ethereum, as well as layer-2 PCNs such as Raiden. One simply has to replace HTLC-based constructs with Astrape-based ones. Since Astrape does not use any novel cryptographic primitives, built-in hash and signature functions can be used, reducing ``gas'' costs significantly. Furthermore, in a Turing-complete scripting language, the $\mathsf{Vf}$ algorithm can be compactly represented, leading to less space usage.
 
 Porting to a more traditional blockchain without Turing-complete scripts is not significantly harder since our contracts are very simple and do not involve unbounded loops. There are, however, two main issues that do not appear in Ethereum-like blockchains.
 
 The first problem is that traditional blockchains typically do not allow any recursion in lock scripts. This means that we cannot directly implement the $\mathsf{Vf}$ function. Instead, we must ``unroll'' $\mathsf{Vf}$ to explicitly check for fraud proofs involving inconsistencies given to $U_i$, $U_{i+1}$, etc.
 
-Thus, for an $n$-hop payment the size of every lock script will be $O(n^2)$. In practice, the mean path length in Lightning Network is only 2.8 \cite{seres2019topological}, and privacy-focused onion routing systems typically use 3 to 5 hops. We don't think exorbitant script sizes are a serious concern for Astrape deployment.
+Thus, for an $n$-hop payment the size of every lock script will be $O(n)$. In practice, the mean path length in Lightning Network is only 2.8 \cite{seres2019topological}, and privacy-focused onion routing systems typically use 3 to 5 hops. We do not think exorbitant script sizes are a serious concern for Astrape deployment.
 
-The second issue is more serious: some blockchains have so little scripting functionality that Astrape cannot be implemented. Astrape requires an ``append-like'' operation $||$ that can take in two bytestrings and combine them in a collision-resistant manner. This functionality is present in many Turing-incomplete scripting languages, including that of Bitcoin Cash and its derivatives. Unfortunately, the most popular cryptocurrency Bitcoin has disabled all of its string-manipulation opcodes. In fact, the only operations possible for strings longer than 32 bits in Bitcoin are comparing or hashing them. Unfortunately, this means that Astrape, which requires heavily on much longer cryptographic values, cannot be directly implemented on Bitcoin. Whether an implementation based solely on the 32-bit integer arithmetic that Bitcoin uses is practical is an interesting open question.
+The second issue is more serious: some blockchains have so little scripting functionality that Astrape cannot be implemented. Astrape requires an ``append-like'' operation $||$ that can take in two bytestrings and combine them in a collision-resistant manner. This functionality is present in many Turing-incomplete scripting languages, including that of Bitcoin Cash and its derivatives. Unfortunately, the most popular cryptocurrency Bitcoin has disabled all of its string-manipulation opcodes. In fact, the only operations possible for strings longer than 32 bits in Bitcoin are comparing or hashing them. This means that Astrape, which requires heavily on much longer cryptographic values, cannot be directly implemented on Bitcoin. Whether an implementation based solely on the 32-bit integer arithmetic that Bitcoin uses is practical is an interesting open question.
 
 \subsection{Side-channel deanonymization}
 
-We follow existing literature on anonymous PCNs \cite{malavolta2017concurrency} \cite{malavolta2019anonymous} in pursuing relationship anonymity as our privacy goal. This means that a powerful adversary that can compromise pretty much anybody won't be able to distinguish between two payments sharing one honest intermediary that happen at exactly the same time with exactly the same values. However, real-life scenarios are rarely so clean, and violations of the assumptions of relationship anonymity can easily break privacy.
+We follow existing literature on anonymous PCNs~\cite{malavolta2017concurrency,malavolta2019anonymous} in pursuing relationship anonymity as our privacy goal. This means that a powerful adversary that cannot distinguish between two payments sharing one honest intermediary that happen at exactly the same time with exactly the same values. However, real-life scenarios are rarely so clean, and violations of the assumptions of relationship anonymity can easily break privacy.
 
-For example, the value of a transaction (say $\$3.1415$) may be fairly unique, allowing adversaries to distinguish it from other transactions. In other cases, timing patterns may deanonymize users --- perhaps only AliceCorp pays employees large lump sums on the 3rd and 14th each month, letting the adversary detect AliceCorp employees.
+For example, the value of a transaction (say $\$3.1415$) may be fairly unique, allowing adversaries to distinguish it from other transactions. In other cases, timing patterns may deanonymize users --- perhaps only AliceCorp pays employees large lump sums on the 3rd and 14th every month, letting the adversary detect AliceCorp employees.
 
-Why, then, do we use relationship anonymity as our privacy goal? The main reason is that timing and value anonymity are largely \emph{orthogonal} to relationship anonymity. Once we've solved relationship anonymity, we can adapt a large body of existing research in defeating side-channel attacks against anonymity systems like onion routing. Timing attack defenses can be directly lifted from works like \cite{feigenbaum2010preventing}, while the information leaked by cryptocurrency values can be vastly diminished simply by using fixed denominations. Restricting the possible ``denominations'' of coins in the network in a system with timing and relationship privacy would lead to cash-like anonymity --- every quarter changing hands is indistinguishable from other quarters, every dime from other dimes, etc.
+Why, then, do we use relationship anonymity as our privacy goal? The main reason is that timing and value anonymity are largely \emph{orthogonal} to relationship anonymity. Once we achieve     relationship anonymity, we can adapt a large body of existing research in defeating side-channel attacks against anonymity systems like onion routing. Timing attack defenses can be directly lifted from works like Feigenbaum et al. \cite{feigenbaum2010preventing}, while the information leaked by cryptocurrency values can be vastly diminished simply by using fixed denominations. Restricting the possible ``denominations'' of coins in the network in a system with timing and relationship privacy would lead to cash-like anonymity --- every quarter changing hands is indistinguishable from other quarters, every dime from other dimes, etc.
 
 We further contrast relationship anonymity with the stronger privacy guarantees provided by hub-based approaches, where the sender and receiver are the only trusted parties. Hub topologies necessarily require a stronger privacy model, as there is only one intermediary, and we believe that for general PCNs that is too strong and constrains us to exotic cryptographic constructs. Furthermore, even these approaches often do not cover side channels based on timing and value \cite{green2017bolt}.
 
@@ -660,9 +666,9 @@ Thus, we believe that relationship anonymity is the best way to evaluate a PCN c
 
 \subsection{Griefing attacks}
 
-An unusual property of Astrape is that its worst-case cost (the HashOnion backup mechanism) diverges sharply from its ``average''-case cost (XorCake). A naive implementation of Astrape would then open the door to \emph{griefing} attacks, where an adversary sends coins to itself while intentionally triggering HashOnion by giving intermediaries corrupt values. Quadratic lock sizes and verification costs would then be borne by intermediaries.
+An unusual property of Astrape is that its worst-case cost (the HashOnion backup mechanism) diverges sharply from its ``average''-case cost (XorCake). A naive implementation of Astrape would then open the door to \emph{griefing} attacks, where an adversary sends coins to itself while intentionally triggering HashOnion by giving intermediaries corrupt values. Linear lock sizes and verification costs would then be borne by intermediaries.
 
-Fortunately, this is easy to mitigate by charging the sender a penalty $P$ if the HashOnion case is used. For each hop, in addition to the main payment coin encumbered by Astrape's composite XorCake/HashOnion lock, we add a coin of value $P$, unlockable by the same parameters that unlock the HashOnion case of the main coin. This way, if HashOnion is activated, all hops can collect an extra $P$ from its predecessor, which ultimately penalizes $U_0$.
+Fortunately, this is easy to mitigate by charging the sender a penalty $P$ for every hop the HashOnion case is used. For each hop $\ell_i$, in addition to the main payment coin encumbered by Astrape's composite XorCake/HashOnion lock, we add a coin of value $P(n-i)$ which is unlockable by the same parameters that unlock the HashOnion case of the main coin. This way, if HashOnion is activated, every hop burdened by verifying HashOnion proofs can collect an extra $P$ from its predecessor, which ultimately penalizes $U_0$.
 
 \section{Comparison with existing work} \label{sec:performance}
 
@@ -676,24 +682,39 @@ In this section, we compare Astrape with existing PCN constructions. First, we c
     \centering
     \footnotesize
     \begin{tabular}{ccccc}
-        \toprule
                     & Topology & Anon & Efficient & Crypto        \\
         \midrule
         HTLC        & Mesh     & No   & Yes       & Sig. + hash   \\
         \midrule
         Tumblebit   & Hub      & Yes  & No        & Custom RSA    \\
-        Bolt        & Hub      & Yes  & Yes       & NZKP          \\
+        Bolt        & Hub      & Yes  & Yes       & NIZKP         \\
         Teechain    & Hub      & Yes  & Yes       & Trusted comp. \\
         \midrule
         Fulgor/Rayo & Mesh     & Yes  & No        & ZKP           \\
         AMHL        & Mesh     & Yes  & Yes       & Homom. enc.   \\
         \midrule
         Astrape     & Mesh     & Yes  & Yes       & Sig. + hash   \\
-        \bottomrule
     \end{tabular}
 \end{table}
 
 In Table \ref{tab:pcncomparison}, we compares Astrape's properties with those of existing payment channel networks. We see that except for HTLC, which does not achieve anonymity, all previous PCN networks use cryptographic constructions specialized for their use case. Furthermore, only more recent constructions achieve efficiency comparable to HTLC. It is thus clear that Astrape is the first and only PCN construction that works on all PCN topologies, achieves strong anonymity, and performs at high efficiency, while using the same simple cryptography as HTLC.
+
+
+\begin{table*}[t]
+    \caption{Resource usage of different PCN systems}
+    \label{tab:resusage}
+    \centering
+    \begin{tabular}{lccccc}
+                                         & Plain HTLC & Fulgor/Rayo     & AMHL (ECDSA)  & Astrape          & Astrape (BCH)   \\
+        \midrule
+        Computation time (ms)            & $<0.001$   & $\approx 200 n$ & $\approx 3 n$ & $\approx 0.25 n$ & $\approx 1.5 n$ \\
+        Communication size (bytes)       & $32 n$     & $1650000 n$     & $544 n$       & $192 n$          & $192 n$         \\
+        \midrule
+        Lock size (bytes)                & $32 + c$   & $32 + c$        & $32+c$        & $64+d$           & $120 + 56n^2$   \\
+        Unlock size, normal case (bytes) & $32$       & $32$            & $64$          & $32$             & $32$            \\
+        Unlock size, worst case (bytes)  & $32$       & $32$            & $64$          & $32 \cdot n$     & $32 \cdot n$    \\
+    \end{tabular}
+\end{table*}
 
 \subsection{Implementation and benchmark setup}
 
@@ -703,13 +724,13 @@ All tests were done on a machine with a 3.2 GHz Intel Core i7 and 16 GB RAM. Net
 
 \subsection{Resource usage}
 
-Our first set of tests compares Astrape's resource usage to that of other PCN constructions. We compare both a simulation of Astrape and a concrete implementation using Bitcoin Cash's scripting language to traditional HTLC, Fulgor/Rayo, and the ECDSA-embedded version of AMHL.
+Our first set of tests compares Astrape's resource usage to that of other PCN constructions. We compare both a simulation of Astrape and a concrete implementation using Bitcoin Cash's scripting language to traditional HTLC, Fulgor/Rayo, and the ECDSA-embedded version of AMHL. Note that due to an unoptimized, naive Bitcoin Cash implementation, the lock sizes are not linear but quadratic in the number of hops. Nevertheless, we see that this does not create undue overhead.
 
 We summarize the results in Table \ref{tab:resusage}, where $n$ refers to the number of hops, $c$ to the size of an HTLC contract, and $d$ to the size of an $\mathsf{Astrape}$ contract. We copy results for Fulgor/Rayo \cite{malavolta2017concurrency} and AMHL \cite{malavolta2019anonymous} from their original sources, which uses an essentially idendical setup.
 
 \paragraph*{Computation time}
 
-We measure computation time, with communication and other overhead ignored. The time measured is the sum of the CPU time taken by each hop, for all steps of the algorithm. We note that by eschewing non-standard cryptographic primitives, Astrape achieves lower computation times across the board compared to Fulgor/Rayo and AMHL, even when the fairly large overhead for Bitcoin Cash is included.
+We measure computation time, with communication and other overhead ignored. The time measured is the sum of the CPU time taken by each hop, for all steps of the algorithm. We note that by eschewing non-standard cryptographic primitives, Astrape achieves lower computation times across the board compared to Fulgor/Rayo and AMHL, even when the fairly large overhead of our inefficent Bitcoin Cash implementation is included.
 
 \paragraph*{Communication overhead}
 
@@ -719,9 +740,9 @@ We also measure the communication overhead of each system. This is defined as al
 
 The last measure is \emph{per-coin} lock overhead --- the size of each lock script and the information required to unlock it. This is a very important component of a system's resource usage, since lock sizes directly translate into transaction fees in blockchain cryptocurrencies. Astrape's performance differs in two important ways.
 
-First of all, due to its complex lock scripts, Astrape has much higher lock sizes for blockchains like Bitcoin Cash that do not support recursion in lock scripts. Secondly, the worst-case unlock size is larger for Astrape. When the sender is malicious and all coins have to be ``collapsed'', we need $n$ parameters ($\Gamma_1, \dots, \Gamma_n$) to unlock each coin.
+First of all, due to its complex lock scripts and our non-optimal implementation, Astrape has much higher lock sizes for blockchains like Bitcoin Cash that do not support recursion in lock scripts. Secondly, the worst-case unlock size is larger for Astrape. When the sender is malicious and all coins have to be ``collapsed'', we need $n$ parameters ($\Gamma_1, \dots, \Gamma_n$) to unlock each coin.
 
-We believe that Astrape still offers competitive lock performance though, since in practice $n^2$ is limited in size, and the worst-case unlock size only applies when the sender is malicious. In the usual case, Astrape has 32-byte unlocks, just like traditional HTLC.
+We believe that Astrape still offers competitive lock performance though, since in practice $n$ is limited in size, and the worst-case unlock size only applies when the sender is malicious. In the usual case, Astrape has 32-byte unlocks, just like traditional HTLC.
 
 % \subsection{Privacy vs overhead}
 
@@ -743,6 +764,8 @@ We believe that Astrape still offers competitive lock performance though, since 
 Finally, we simulate the performance of Astrape on the network graph of Lightning Network.
 
 \paragraph*{Setup}
+
+\textbf{TODO: update info}
 
 We set up a mainnet Lightning Network node using the \textsf{lnd} \cite{github2019lnd} reference implementation. We then used the \textsf{lncli describegraph} command to capture the network topology of Lightning Network in August 2019. This gives us a graph of 4767 nodes and 32219 edges. Finally, we randomly sample 1,000 pairs of nodes in the network and calculate the shortest paths between them. This gives us a randomly sampled set of real-life payment paths.
 \begin{figure*}[t]
@@ -783,9 +806,9 @@ To do so, we keep track of how many times each node appears, or is ``hit'', in o
 
 We then look at the \emph{distribution of overhead} in the network for both computation and communication. This is by calculating the total computation and communication cost for each node ``hit'' by the 1,000 random payments, using values from the Bitcoin Cash implementation. This allows us to calculate the resources required for the largest ``hubs'' in the network whose throughput limits that of the entire system.
 
-Computation cost is plotted in Figure \ref{fig:cpuover}. We see that the most heavily loaded node in the entire network did around 1,000 ms of computation to process 1,000 transactions. This indicates that a PCN with the current Lightning Network topology will be able to process around 1,000 transactions a second with the largest hubs using commodity hardware. Such a throughput is orders of magnitude higher than that of typical blockchains and is within reach of many traditional payment systems. We note that Lightning Network is still experimental; with a larger and more evenly distributed network this throughput will increase dramatically.
+Computation cost is plotted in Figure \ref{fig:cpuover}. We see that the most heavily loaded node in the entire network did around 1,000 ms of computation to process 1,000 transactions. This indicates that a PCN with the current Lightning Network topology will be able to process around 1,000 transactions a second with the largest hubs using commodity hardware. Such a throughput is orders of magnitude higher than that of typical blockchains and is within reach of many traditional payment systems. We note that the Lightning Network is still experimental; with a larger network this throughput will increase dramatically.
 
-Communication cost is plotted in Figure \ref{fig:commover}. We used the quadratically increasing lock sizes of the Bitcoin Cash implementation of Astrape, and assumed that all payments are settled through a worst-case ``collapse''. Even so, the total network load averages to only about 3.92 KB per node. The largest hubs' total load still do not exceed 400 KB. This illustrates that even though communication cost is worst-case quadratic in the number of payment hops, the bottleneck is actually computation, not communication --- with LN's topology major hubs will have saturated their processing power at 1,000 transactions per second, but would only have to transmit a meager 400 KB/s of data.
+Communication cost is plotted in Figure \ref{fig:commover}. We used the quadratically increasing lock sizes of the unoptimized Bitcoin Cash implementation of Astrape, and assumed that all payments are settled through a worst-case ``collapse''. Even so, the total network load averages to only about 3.92 KB per node. The largest hubs' total load still do not exceed 400 KB. This illustrates that even though communication cost is worst-case quadratic in the number of payment hops, the bottleneck is actually computation, not communication --- with LN's topology major hubs will have saturated their processing power at 1,000 transactions per second, but would only have to transmit a meager 400 KB/s of data.
 
 In summary, we see that Astrape's rather ``scary'' worst-case asymptotic performance poses no barriers to the total throughput of an Astrape-powered payment channel network. PCNs can enjoy the superb scalability associated with them just as easily with Astrape-powered privacy and security.
 
@@ -818,9 +841,9 @@ We presented Astrape, a novel PCN construction that breaks this conundrum. Astra
 Furthermore, we demonstrate that Astrape is practical to deploy in the real world. Performance is superior on average to existing private PCNs, even on blockchains that are unsuitable for free-form smart contracts. We also showed that Astrape achieves high scalability on a real-world payment channel network graph.
 
 \bibliography{astrape}{}
-\bibliographystyle{IEEEtran}
+\bibliographystyle{abbrv}
 
-%\appendix
+%\appendix 
 
 % \section{Previous reviews from IEEE S\&P 2020}
 
