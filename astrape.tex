@@ -57,7 +57,6 @@
 \algtext*{EndIf}
  
 %\renewcommand{\baselinestretch}{1.06}
-
 \begin{document}
 
 \title{Astrape: Anonymous Payment Channels with Boring Cryptography}
@@ -71,7 +70,7 @@
 \maketitle
 
 \begin{abstract}
-    Increasing use of blockchain-based cryptocurrencies like Bitcoin and Ethereum have run into inherent scalability limitations of blockchains. Payment channels networks, or PCNs, promise to greatly increase scalability by conducting the vast majority of transactions outside the blockchain while leveraging it as a final settlement protocol. Unfortunately, currently deployed PCNs have significant flaws in security and privacy. In particular, even though transactions are conducted off-chain, anonymity guarantees are very weak.
+    Increasing use of blockchain-based cryptocurrencies like Bitcoin and Ethereum have run into inherent scalability limitations of blockchains. Payment channel networks, or PCNs, promise to greatly increase scalability by conducting the vast majority of transactions outside the blockchain while leveraging it as a final settlement protocol. Unfortunately, currently deployed PCNs have significant flaws in security and privacy. In particular, even though transactions are conducted off-chain, anonymity guarantees are very weak.
 
     In this work, we present Astrape, a novel PCN construction that achieves strong security and anonymity guarantees with simple, black-box cryptography. Existing anonymous PCN constructions all integrate with specific, often custom-designed, cryptographic constructions, but Astrape can use any generic public-key signature scheme and any random-oracle hash function. This allows Astrape to achieve provable security without relying on any specific computational hardness assumption. Astrape's simple cryptography also lends itself to unusually straightforward security proofs compared to existing systems.
 
@@ -107,7 +106,7 @@ Thus, we believe that any relationship-anonymous PCN construction should strive 
 In this paper, we present Astrape, the first PCN protocol that uses entirely ``boring'' cryptography yet achieves strong relationship anonymity. Despite achieving comparable security, privacy, and performance to other anonymous PCN constructions, Astrape does not introduce any cryptographic constructs other than those used in HTLC.
 
 \begin{itemize}
-    \item We discuss existing payment channel networks, focusing on their security and privacy properties. In particular, we show that PCNs based on the hash time-lock contract, such as Lightning Network, have significant privacy and security problems. We discuss existing work on improving PCNs and their extensive reliance on either specialized environments or novel cryptographic constructions.
+    \item We discuss existing payment channel networks, focusing on their security and privacy properties. In particular, we show that PCNs based on the hash time-lock contract (HTLC), such as Lightning Network, have significant privacy and security problems. We discuss existing work on improving PCNs and their extensive reliance on either specialized environments or novel cryptographic constructions.
     \item We introduce a formal model of PCN constructions, ``generalized multi-hop locks'' (GMHL), based on existing work defining ``anonymous multi-hop locks''~\cite{malavolta2019anonymous}. that generalizes all sorts of PCN constructs. We model the security and privacy properties we desire from a PCN construction within this model.
     \item Within the GMHL framework, we introduce Astrape, a new PCN construction that solves the security and privacy issues of HTLC-based constructs with only black-box cryptographic primitives. Strong privacy without new cryptographic primitives solves an important open problem in the field. Astrape builds upon existing work \cite{malavolta2017concurrency} on private PCNs but uses a new technique that avoids the need for zero-knowledge proofs. We prove that Astrape fulfills all of our security and privacy goals, even with very powerful adversaries.
     \item We implement Astrape and show that on average, Astrape requires less computation or communication than state-of-the-art private PCN constructions. We show that Astrape can easily be ported to different blockchains, due to its use of standard cryptographic primitives and the generality of the GMHL model.
